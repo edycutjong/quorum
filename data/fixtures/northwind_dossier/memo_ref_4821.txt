@@ -1,0 +1,4 @@
+Payment of $2.4M was authorized by VP Operations Sarah Chen on March 12, 2024 to Entity X (Northwind Consultants LLC) for "strategic advisory services" per internal memo REF-4821. The payment was processed through Account 7742-A and cleared within 24 hours via wire transfer. Authorization chain: Chen → CFO Williams (verbal approval, no written record) → Treasury.
+
+Source: Internal Memo REF-4821, March 12, 2024
+Classification: CONFIDENTIAL — Board Level

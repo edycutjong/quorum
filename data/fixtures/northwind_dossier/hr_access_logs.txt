@@ -1,0 +1,22 @@
+NORTHWIND INDUSTRIES — HR RECORDS
+Employee Travel & Access Logs — March 2024
+
+VP Operations Sarah Chen (Employee ID: NW-2019-042):
+- March 1-10: Office (badge swipes confirmed, avg arrival 08:12)
+- March 11: NO badge swipe. PTO approved.
+- March 12: NO badge swipe. PTO approved. No VPN login recorded.
+- March 13: NO badge swipe. PTO approved. No VPN login recorded.
+- March 14: NO badge swipe. PTO approved. No VPN login recorded.
+- March 15: NO badge swipe. PTO approved. No VPN login recorded.
+- March 16: Badge swipe at 07:58. Returned from PTO.
+
+Note: Internal memo REF-4821 is timestamped March 12, 2024 at 14:23 EST.
+Chen had no physical or VPN access to company systems on that date.
+
+CFO Williams (Employee ID: NW-2017-015):
+- March 1-7: Office
+- March 8-22: Medical leave (documented)
+- No system access during leave period
+
+Source: HR Access Control System, March 2024
+Classification: RESTRICTED — HR/Compliance

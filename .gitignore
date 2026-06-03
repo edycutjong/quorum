@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+
+# Generated assets
+assets/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Lighthouse
+.lighthouseci/
+
+# Coverage
+coverage/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Data (generated)
+data/seed_manifest.json
+data/bench_results.json

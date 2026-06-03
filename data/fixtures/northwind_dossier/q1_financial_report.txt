@@ -1,0 +1,23 @@
+NORTHWIND INDUSTRIES — FINANCIAL REPORT
+Q1 2024 Summary
+
+Total Revenue: $47.2M (up 12% YoY)
+Total Expenses: $41.8M
+Net Income: $5.4M
+
+Notable Line Items:
+- Entity X (Northwind Consultants LLC): $2.4M — "Strategic Advisory"
+  → FLAGGED by internal audit: No deliverables documented
+  → No corresponding SOW (Statement of Work) on file
+  → Payment category: "Professional Services" (Account 7742-A)
+
+- IT Infrastructure Upgrade: $3.1M — on track, 60% complete
+- Marketing Campaign Q1: $1.8M — ROI tracking pending
+- Employee Training Program: $450K — 120 employees enrolled
+
+Audit Notes:
+- Internal auditor K. Patel noted: "Entity X payment lacks standard documentation. SOW, deliverables report, and dual-authorization signatures are all absent. Recommending investigation."
+- The $2.4M payment exceeds the $1M threshold requiring written board approval per governance charter Section 4.2. No board resolution found.
+
+Source: Q1 2024 Financial Summary + Internal Audit Notes
+Classification: CONFIDENTIAL — Audit Committee

@@ -1,0 +1,30 @@
+NORTHWIND INDUSTRIES — GOVERNANCE CHARTER (Excerpt)
+
+Section 4.2 — Financial Authorization Levels
+
+All expenditures must follow the dual-authorization protocol:
+
+Tier 1 (< $50K): Department Manager + Finance Analyst
+Tier 2 ($50K - $500K): Director + VP Finance
+Tier 3 ($500K - $1M): VP + CFO (written co-sign required)
+Tier 4 (> $1M): VP + CFO + Board Resolution (written, filed with Corporate Secretary)
+
+Deviations from this protocol require:
+1. Written exception memo from CEO
+2. Post-hoc ratification by the Audit Committee within 30 days
+3. Documentation filed with General Counsel
+
+Section 4.3 — Vendor Onboarding
+
+New vendors exceeding $100K annual contract value must:
+1. Complete vendor due diligence questionnaire
+2. Provide certificate of insurance
+3. Execute standard MSA (Master Service Agreement)
+4. File Statement of Work (SOW) with clear deliverables and milestones
+5. Receive approval from Procurement Committee
+
+Non-compliance with Section 4.2 or 4.3 constitutes a governance breach
+subject to investigation by the Audit Committee.
+
+Source: Northwind Industries Governance Charter, Rev. 12 (January 2024)
+Classification: INTERNAL — All Employees
