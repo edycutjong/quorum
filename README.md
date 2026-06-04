@@ -1,12 +1,12 @@
 <div align="center">
   <h1>Quorum 🏛️</h1>
   <p><em>Offline multi-agent document council — 3 AI agents debate your documents to a cited answer. The visible disagreement IS the trust mechanism.</em></p>
-  <img src="docs/readme-hero.png" alt="Quorum" width="100%">
+  <img src="docs/readme-hero.svg" alt="Quorum" width="100%">
 
   <br/>
 
-  [![Built for QVAC Hackathon](https://img.shields.io/badge/DoraHacks-QVAC%20Edge%20AI-8b5cf6?style=for-the-badge)](https://dorahacks.io)
-  [![Track](https://img.shields.io/badge/Track-General%20Purpose-06b6d4?style=for-the-badge)](https://dorahacks.io)
+  [![Built for QVAC Hackathon](https://img.shields.io/badge/DoraHacks-QVAC%20Edge%20AI-8b5cf6?style=for-the-badge)](https://dorahacks.io/hackathon/qvac-unleach-edge-ai-i/detail)
+  [![Track](https://img.shields.io/badge/Track-General%20Purpose-06b6d4?style=for-the-badge)](https://dorahacks.io/hackathon/qvac-unleach-edge-ai-i/tracks)
 
   <br/>
 
@@ -35,11 +35,25 @@ When analyzing confidential documents — legal dossiers, financial audits, HR r
 
 ## 🏗️ Architecture & Tech Stack
 
-```
-[User Query] → [Researcher] → [Skeptic] → [Synthesizer] → [Cited Answer]
-                    ↓               ↓              ↓
-              RAG retrieve    Counter-retrieve   Reconcile
-              + propose       + challenge        + confidence
+```mermaid
+flowchart LR
+    Q["🗣️ User Query"] --> R["🔍 Researcher"]
+    R --> S["⚡ Skeptic"]
+    S --> Y["🧩 Synthesizer"]
+    Y --> A["📋 Cited Answer"]
+
+    R -.- R1["RAG retrieve\n+ propose"]
+    S -.- S1["Counter-retrieve\n+ challenge"]
+    Y -.- Y1["Reconcile\n+ confidence"]
+
+    style Q fill:#1e293b,stroke:#06b6d4,color:#f1f5f9
+    style R fill:#0e2a30,stroke:#06b6d4,color:#06b6d4
+    style S fill:#2a1f0e,stroke:#f59e0b,color:#f59e0b
+    style Y fill:#0e2a14,stroke:#22c55e,color:#22c55e
+    style A fill:#1e293b,stroke:#06b6d4,color:#f1f5f9
+    style R1 fill:none,stroke:#06b6d4,color:#94a3b8,stroke-dasharray:4
+    style S1 fill:none,stroke:#f59e0b,color:#94a3b8,stroke-dasharray:4
+    style Y1 fill:none,stroke:#22c55e,color:#94a3b8,stroke-dasharray:4
 ```
 
 | Layer | Technology |
