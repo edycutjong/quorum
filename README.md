@@ -33,6 +33,31 @@ When analyzing confidential documents — legal dossiers, financial audits, HR r
 - 📚 **Every claim cited** — Source chunk mapped to exact document
 - 🔴 **Contradiction detection** — Skeptic catches what a single LLM would miss
 
+## 🎥 See It In Action
+
+*Real local inference — the network is off the entire time (note the **`● LIVE · QVAC`** pill).*
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/93573b63-54e9-419e-99b4-42141032077b" alt="Quorum interface — 100% offline, LIVE · QVAC" width="80%">
+</p>
+
+**The contradiction catch.** Ask *"Who authorized the Entity X payment and was it legitimate?"* — a naive RAG repeats the memo (*"VP Chen, March 12"*), but Quorum's Skeptic re-queries and surfaces the conflicting HR access logs and board minutes, so the Synthesizer returns a **cited, disputed verdict with lowered confidence**:
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/3baae085-429d-4ef7-aefe-56aafb3a1955" alt="Quorum's council catches a planted contradiction, fully offline" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="https://github.com/user-attachments/assets/7b847d84-32a9-4e62-a57e-4a67d74e0b58" alt="Every claim maps to an exact source chunk" width="100%"></td>
+    <td width="50%" align="center"><img src="https://github.com/user-attachments/assets/d180e411-642e-4877-a941-c97f7e56b634" alt="A second debate — governance Section 4.2 compliance" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><em>📚 Every claim maps to an exact source chunk</em></td>
+    <td align="center"><em>⚖️ A second debate — governance §4.2 compliance</em></td>
+  </tr>
+</table>
+
 ## 🏗️ Architecture & Tech Stack
 
 ```mermaid

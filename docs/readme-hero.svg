@@ -1,179 +1,66 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1280 640" width="1280" height="640">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
   <defs>
-    <style><![CDATA[
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@600;800&display=swap');
-    ]]></style>
+    <radialGradient id="glowC" cx="0%" cy="0%" r="75%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.30"/><stop offset="55%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowA" cx="100%" cy="100%" r="75%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.26"/><stop offset="55%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
   </defs>
 
-  <foreignObject x="0" y="0" width="1280" height="640">
-    <div xmlns="http://www.w3.org/1999/xhtml" style="width:1280px;height:640px;margin:0;padding:0;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:#F8FAFC;">
+  <rect width="1280" height="640" fill="#0a0e14"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+  <rect width="1280" height="640" fill="url(#glowC)"/>
+  <rect width="1280" height="640" fill="url(#glowA)"/>
+  <line x1="660" y1="64" x2="660" y2="576" stroke="#ffffff" stroke-opacity="0.06"/>
 
-      <style>/*<![CDATA[*/
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@600;800&display=swap');
-        .bg {
-          position:absolute;inset:0;z-index:-2;
-          background-color:#0a0a0a;
-          background-image:
-            radial-gradient(at 0% 0%, rgba(6,182,212,0.35) 0, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(245,158,11,0.35) 0, transparent 50%);
-        }
-        .grid {
-          position:absolute;inset:0;z-index:-1;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-          background-size:40px 40px;
-        }
-        .noise {
-          position:absolute;inset:0;z-index:999;pointer-events:none;
-          mix-blend-mode:overlay;opacity:0.04;
-          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
-        .hero-wrap {
-          width:1280px;height:640px;display:flex;position:relative;
-        }
-        .left {
-          width:40%;height:100%;padding:48px;box-sizing:border-box;
-          display:flex;flex-direction:column;justify-content:center;
-          z-index:20;position:relative;
-        }
-        .left-bg {
-          position:absolute;inset:0;z-index:-1;
-          background:linear-gradient(90deg, #0a0a0a 70%, transparent 100%);
-        }
-        .title {
-          font-family:'Orbitron',sans-serif;font-size:72px;font-weight:800;
-          margin:0 0 12px 0;line-height:1;
-          background:linear-gradient(135deg, #06b6d4 0%, #f59e0b 100%);
-          -webkit-background-clip:text;background-clip:text;color:transparent;
-        }
-        .subtitle {
-          font-family:'Inter',sans-serif;font-size:22px;color:#94A3B8;
-          margin:0 0 28px 0;line-height:1.35;
-        }
-        .feat {
-          font-family:'JetBrains Mono',monospace;font-size:16px;color:#F8FAFC;
-          margin-bottom:10px;display:flex;align-items:center;gap:10px;
-        }
-        .arrow { color:#06b6d4;font-size:14px;flex-shrink:0; }
-        .pills { display:flex;gap:8px;flex-wrap:wrap; }
-        .pill {
-          font-family:'JetBrains Mono',monospace;font-size:12px;
-          padding:4px 12px;border-radius:9999px;
-          background:rgba(255,255,255,0.04);
-          border:1px solid rgba(255,255,255,0.08);
-          display:inline-block;color:#94A3B8;
-        }
-        .right {
-          width:60%;height:100%;position:relative;z-index:10;
-        }
-      /*]]>*/</style>
+  <!-- left -->
+  <text x="66" y="120" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="3" fill="#06b6d4" text-anchor="start" opacity="1">MULTI-AGENT DOCUMENT COUNCIL</text>
+  <g transform="translate(64, 210)"><path d="M54.9000439453125 0.0V-11.259509765625L68.112 -13.296405761718749V-12.74710400390625H75.484943359375V0.0ZM17.409798828125 0.0Q13.943888427734374 0.0 11.055629760742185 -1.7076855468749998Q8.167371093749999 -3.4153710937499997 6.459685546874999 -6.303629760742187Q4.752 -9.191888427734375 4.752 -12.657798828125V-50.702201171875Q4.752 -54.16811157226562 6.459685546874999 -57.05637023925781Q8.167371093749999 -59.944628906249996 11.055629760742185 -61.652314453125Q13.943888427734374 -63.36 17.409798828125 -63.36H55.454201171875Q58.89201605224609 -63.36 61.75686178588867 -61.652314453125Q64.62170751953124 -59.944628906249996 66.36685375976562 -57.05637023925781Q68.112 -54.16811157226562 68.112 -50.702201171875V-12.657798828125Q68.112 -9.191888427734375 66.36685375976562 -6.303629760742187Q64.62170751953124 -3.4153710937499997 61.75686178588867 -1.7076855468749998Q58.89201605224609 0.0 55.454201171875 0.0ZM17.93424853515625 -12.74710400390625H54.77990869140625Q54.98916650390625 -12.74710400390625 55.13957055664062 -12.897508056640625Q55.289974609374994 -13.047912109375 55.289974609374994 -13.257169921874999V-50.102830078124995Q55.289974609374994 -50.312087890624994 55.13957055664062 -50.46249194335937Q54.98916650390625 -50.61289599609375 54.77990869140625 -50.61289599609375H17.93424853515625Q17.724990722656248 -50.61289599609375 17.57458666992187 -50.46249194335937Q17.424182617187498 -50.312087890624994 17.424182617187498 -50.102830078124995V-13.257169921874999Q17.424182617187498 -13.047912109375 17.57458666992187 -12.897508056640625Q17.724990722656248 -12.74710400390625 17.93424853515625 -12.74710400390625Z M94.90211328125 0.0Q91.49239392089844 0.0 88.65096112060547 -1.7142248535156248Q85.8095283203125 -3.4284497070312496 84.13276416015626 -6.2464695739746094Q82.456 -9.064489440917969 82.456 -12.44611328125V-51.04H94.99141845703124V-13.045484375Q94.99141845703124 -12.836226562499998 95.14182250976563 -12.685822509765625Q95.2922265625 -12.53541845703125 95.501484375 -12.53541845703125H121.18067285156249Q121.38993066406249 -12.53541845703125 121.5468740234375 -12.685822509765625Q121.7038173828125 -12.836226562499998 121.7038173828125 -13.045484375V-51.04H134.23923583984376V-12.44611328125Q134.23923583984376 -9.064489440917969 132.56247167968752 -6.2464695739746094Q130.88570751953125 -3.4284497070312496 128.07215978592433 -1.7142248535156248Q125.2586120523174 0.0 121.7800439453125 0.0H94.90211328125Z M155.88611328125 0.0Q152.50448944091798 0.0 149.68646957397462 -1.7142248535156248Q146.86844970703126 -3.4284497070312496 145.15422485351564 -6.2464695739746094Q143.44 -9.064489440917969 143.44 -12.44611328125V-38.59388671875Q143.44 -41.97551055908203 145.15422485351564 -44.793530426025384Q146.86844970703126 -47.611550292968744 149.68646957397462 -49.325775146484375Q152.50448944091798 -51.04 155.88611328125 -51.04H182.7640439453125Q186.23627775198514 -51.04 189.04470215444096 -49.33514031982422Q191.85312655689677 -47.63028063964843 193.53818119837024 -44.78884783935547Q195.22323583984374 -41.9474150390625 195.22323583984374 -38.59388671875V-12.44611328125Q195.22323583984374 -9.064489440917969 193.5464716796875 -6.2464695739746094Q191.86970751953123 -3.4284497070312496 189.0561597859243 -1.7142248535156248Q186.2426120523174 0.0 182.7640439453125 0.0H155.88611328125ZM156.485484375 -12.53541845703125H182.1646728515625Q182.3739306640625 -12.53541845703125 182.5243347167969 -12.685822509765625Q182.67473876953125 -12.836226562499998 182.67473876953125 -13.045484375V-37.994515625Q182.67473876953125 -38.2037734375 182.5243347167969 -38.35417749023438Q182.3739306640625 -38.50458154296875 182.1646728515625 -38.50458154296875H156.485484375Q156.2762265625 -38.50458154296875 156.1258225097656 -38.35417749023438Q155.97541845703125 -38.2037734375 155.97541845703125 -37.994515625V-13.045484375Q155.97541845703125 -12.836226562499998 156.1258225097656 -12.685822509765625Q156.2762265625 -12.53541845703125 156.485484375 -12.53541845703125Z M204.42399999999998 0.0V-38.59388671875Q204.42399999999998 -41.97551055908203 206.13822485351562 -44.793530426025384Q207.85244970703124 -47.611550292968744 210.6938825073242 -49.325775146484375Q213.53531530761717 -51.04 216.94503466796874 -51.04H245.18350634765625V-38.50458154296875H217.46948437499998Q217.26022656249998 -38.50458154296875 217.1098225097656 -38.35417749023438Q216.95941845703123 -38.2037734375 216.95941845703123 -37.994515625V0.0Z M263.07011328125 0.0Q259.6603939208984 0.0 256.8189611206054 -1.7142248535156248Q253.97752832031247 -3.4284497070312496 252.30076416015623 -6.2464695739746094Q250.62399999999997 -9.064489440917969 250.62399999999997 -12.44611328125V-51.04H263.1594184570312V-13.045484375Q263.1594184570312 -12.836226562499998 263.3098225097656 -12.685822509765625Q263.4602265625 -12.53541845703125 263.66948437499997 -12.53541845703125H289.34867285156247Q289.5579306640625 -12.53541845703125 289.71487402343746 -12.685822509765625Q289.8718173828125 -12.836226562499998 289.8718173828125 -13.045484375V-51.04H302.40723583984374V-12.44611328125Q302.40723583984374 -9.064489440917969 300.7304716796875 -6.2464695739746094Q299.05370751953126 -3.4284497070312496 296.24015978592433 -1.7142248535156248Q293.4266120523174 0.0 289.94804394531246 0.0H263.07011328125Z M311.872 0.0V-51.04H374.185345703125Q377.6639138101299 -51.04 380.4774615437368 -49.325775146484375Q383.29100927734373 -47.611550292968744 384.96123413085934 -44.793530426025384Q386.631458984375 -41.97551055908203 386.631458984375 -38.59388671875V0.0H374.18404052734377V-37.994515625Q374.18404052734377 -38.2037734375 374.02709716796875 -38.35417749023438Q373.8701538085937 -38.50458154296875 373.66089599609376 -38.50458154296875H356.1240439453125Q355.9147861328125 -38.50458154296875 355.7643820800781 -38.35417749023438Q355.61397802734376 -38.2037734375 355.61397802734376 -37.994515625V0.0H342.9905595703125V-37.994515625Q342.9905595703125 -38.2037734375 342.8401555175781 -38.35417749023438Q342.68975146484377 -38.50458154296875 342.48049365234374 -38.50458154296875H324.9305629882813Q324.72130517578125 -38.50458154296875 324.57090112304684 -38.35417749023438Q324.4204970703125 -38.2037734375 324.4204970703125 -37.994515625V0.0Z" fill="url(#wm)"/></g>
+  <text x="66" y="250" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="19" font-weight="500" letter-spacing="0" fill="#cbd5e1" text-anchor="start" opacity="1">Offline AI agents that debate your documents</text>
+  <text x="66" y="276" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="19" font-weight="500" letter-spacing="0" fill="#cbd5e1" text-anchor="start" opacity="1">to a cited answer — the network never on.</text>
+  <circle cx="68" cy="367" r="5" fill="#06b6d4"/><text x="86" y="372" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15.5" font-weight="400" letter-spacing="0" fill="#cbd5e1" text-anchor="start" opacity="1">3-agent debate — Researcher · Skeptic · Synthesizer</text><circle cx="68" cy="401" r="5" fill="#f59e0b"/><text x="86" y="406" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15.5" font-weight="400" letter-spacing="0" fill="#cbd5e1" text-anchor="start" opacity="1">Skeptic catches planted contradictions</text><circle cx="68" cy="435" r="5" fill="#22c55e"/><text x="86" y="440" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15.5" font-weight="400" letter-spacing="0" fill="#cbd5e1" text-anchor="start" opacity="1">Citations on every factual claim (100% in bench)</text><circle cx="68" cy="469" r="5" fill="#ef4444"/><text x="86" y="474" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15.5" font-weight="400" letter-spacing="0" fill="#cbd5e1" text-anchor="start" opacity="1">Air-gap verified — 0 outbound connections</text>
+  <rect x="64" y="524" width="36" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)"/><text x="81.8" y="540" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="600" letter-spacing="0.3" fill="#94a3b8" text-anchor="middle" opacity="1">MIT</text><rect x="109.6" y="524" width="115" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)"/><text x="167.0" y="540" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="600" letter-spacing="0.3" fill="#94a3b8" text-anchor="middle" opacity="1">QVAC Hackathon</text><rect x="234.39999999999998" y="524" width="100" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)"/><text x="284.59999999999997" y="540" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="600" letter-spacing="0.3" fill="#94a3b8" text-anchor="middle" opacity="1">Llama 3.2 1B</text><rect x="344.79999999999995" y="524" width="79" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)"/><text x="384.19999999999993" y="540" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="600" letter-spacing="0.3" fill="#94a3b8" text-anchor="middle" opacity="1">GTE-Large</text><rect x="433.59999999999997" y="524" width="79" height="24" rx="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.10)"/><text x="472.99999999999994" y="540" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="600" letter-spacing="0.3" fill="#94a3b8" text-anchor="middle" opacity="1">@qvac/sdk</text>
 
-      <div class="bg"></div>
-      <div class="grid"></div>
-      <div class="noise"></div>
-
-      <div class="hero-wrap">
-        <div class="left">
-          <div class="left-bg"></div>
-          <h1 class="title">Quorum</h1>
-          <p class="subtitle">Offline multi-agent council that debates your documents to a cited answer.</p>
-          <div style="margin-bottom:32px;">
-            <div class="feat"><span class="arrow">→</span>3-agent debate: Researcher, Skeptic, Synthesizer</div>
-            <div class="feat"><span class="arrow">→</span>Citations on ≥95% of factual claims</div>
-            <div class="feat"><span class="arrow">→</span>Contradiction detection in corpus</div>
-            <div class="feat"><span class="arrow">→</span>Multi-query RAG retrieval</div>
-            <div class="feat"><span class="arrow">→</span>Air-gap verified (0 connections)</div>
-          </div>
-          <div class="pills">
-            <span class="pill">License: MIT</span>
-            <span class="pill">Built for QVAC Hackathon</span>
-            <span class="pill">Vite + React</span>
-            <span class="pill">Llama 3.2</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </foreignObject>
-
-  <!-- ═══ Right panel: SVG diagram with animations ═══ -->
-  <g transform="translate(512, 0)">
-    <!-- Connections (back layer) -->
-    <line x1="140" y1="285" x2="200" y2="285" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" stroke-dasharray="4 4" />
-    <line x1="290" y1="275" x2="358" y2="195" stroke="rgba(6,182,212,0.15)" stroke-width="1.5" stroke-dasharray="4 4" />
-    <line x1="290" y1="285" x2="358" y2="315" stroke="rgba(245,158,11,0.15)" stroke-width="1.5" stroke-dasharray="4 4" />
-    <line x1="290" y1="295" x2="358" y2="450" stroke="rgba(34,197,94,0.15)" stroke-width="1.5" stroke-dasharray="4 4" />
-    <line x1="400" y1="222" x2="400" y2="278" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
-    <line x1="400" y1="362" x2="400" y2="418" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
-    <line x1="442" y1="450" x2="560" y2="340" stroke="rgba(34,197,94,0.12)" stroke-width="1.5" stroke-dasharray="4 4" />
-
-    <!-- Animated dots (middle layer) -->
-    <circle r="3" fill="rgba(255,255,255,0.4)">
-      <animateMotion dur="2s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 140 285 L 200 285" />
-    </circle>
-    <circle r="3" fill="#06b6d4">
-      <animateMotion dur="2.5s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 290 275 L 358 195" />
-    </circle>
-    <circle r="3" fill="#f59e0b">
-      <animateMotion dur="2.8s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 290 285 L 358 315" />
-    </circle>
-    <circle r="3" fill="#22c55e">
-      <animateMotion dur="3.2s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 290 295 L 358 450" />
-    </circle>
-    <circle r="3" fill="rgba(255,255,255,0.3)">
-      <animateMotion dur="2s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 400 222 L 400 278" />
-    </circle>
-    <circle r="3" fill="rgba(255,255,255,0.3)">
-      <animateMotion dur="2.2s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 400 362 L 400 418" />
-    </circle>
-    <circle r="3" fill="#22c55e">
-      <animateMotion dur="2.6s" repeatCount="indefinite" calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.4 0 0.2 1" path="M 442 450 L 560 340" />
-    </circle>
-
-    <!-- Nodes (front layer) -->
-    <!-- Corpus -->
-    <rect x="40" y="250" width="100" height="80" rx="10" fill="#111827" stroke="#475569" stroke-width="1.5" />
-    <rect x="55" y="265" width="60" height="4" rx="2" fill="rgba(255,255,255,0.25)" />
-    <rect x="55" y="275" width="70" height="4" rx="2" fill="rgba(255,255,255,0.18)" />
-    <rect x="55" y="285" width="50" height="4" rx="2" fill="rgba(255,255,255,0.12)" />
-    <text x="90" y="350" font-family="JetBrains Mono, monospace" font-size="11px" fill="#cbd5e1" text-anchor="middle">Corpus</text>
-
-    <!-- RAG -->
-    <rect x="200" y="260" width="90" height="50" rx="10" fill="#0b1a1f" stroke="#06b6d4" stroke-width="1.5" />
-    <text x="245" y="288" font-family="JetBrains Mono, monospace" font-size="10px" fill="#06b6d4" text-anchor="middle">ragSearch</text>
-
-    <!-- Researcher -->
-    <circle cx="400" cy="180" r="42" fill="#0b1a1f" stroke="#06b6d4" stroke-width="1.5" />
-    <text x="400" y="176" font-family="JetBrains Mono, monospace" font-size="11px" fill="#06b6d4" text-anchor="middle">Researcher</text>
-    <text x="400" y="192" font-family="JetBrains Mono, monospace" font-size="9px" fill="#475569" text-anchor="middle">propose</text>
-
-    <!-- Skeptic -->
-    <circle cx="400" cy="320" r="42" fill="#161209" stroke="#f59e0b" stroke-width="1.5" />
-    <text x="400" y="316" font-family="JetBrains Mono, monospace" font-size="11px" fill="#f59e0b" text-anchor="middle">Skeptic</text>
-    <text x="400" y="332" font-family="JetBrains Mono, monospace" font-size="9px" fill="#475569" text-anchor="middle">challenge</text>
-
-    <!-- Synthesizer -->
-    <circle cx="400" cy="460" r="42" fill="#0c1612" stroke="#22c55e" stroke-width="1.5" />
-    <text x="400" y="456" font-family="JetBrains Mono, monospace" font-size="11px" fill="#22c55e" text-anchor="middle">Synthesizer</text>
-    <text x="400" y="472" font-family="JetBrains Mono, monospace" font-size="9px" fill="#475569" text-anchor="middle">reconcile</text>
-
-    <!-- Output -->
-    <rect x="560" y="300" width="130" height="60" rx="10" fill="#0c1612" stroke="#22c55e" stroke-width="1.5" />
-    <text x="625" y="328" font-family="JetBrains Mono, monospace" font-size="11px" fill="#22c55e" text-anchor="middle">Cited Answer</text>
-    <text x="625" y="345" font-family="JetBrains Mono, monospace" font-size="9px" fill="#475569" text-anchor="middle">confidence: HIGH</text>
-
-    <!-- Labels -->
-    <text x="415" y="252" font-family="JetBrains Mono, monospace" font-size="8px" fill="#94A3B8">claim</text>
-    <text x="415" y="392" font-family="JetBrains Mono, monospace" font-size="8px" fill="#94A3B8">rebuttal</text>
-
-    <!-- Badges -->
-    <rect x="200" y="570" width="100" height="24" rx="12" fill="#0b1a1f" stroke="rgba(6,182,212,0.3)" stroke-width="1" />
-    <text x="250" y="587" font-family="JetBrains Mono, monospace" font-size="10px" fill="#06b6d4" text-anchor="middle">Llama 3.2</text>
-
-    <rect x="320" y="570" width="100" height="24" rx="12" fill="#161209" stroke="rgba(245,158,11,0.3)" stroke-width="1" />
-    <text x="370" y="587" font-family="JetBrains Mono, monospace" font-size="10px" fill="#f59e0b" text-anchor="middle">GTE-Large</text>
-
-    <rect x="440" y="570" width="100" height="24" rx="12" fill="#0c1612" stroke="rgba(34,197,94,0.3)" stroke-width="1" />
-    <text x="490" y="587" font-family="JetBrains Mono, monospace" font-size="10px" fill="#22c55e" text-anchor="middle">Air-Gapped</text>
+  <!-- right pipeline -->
+  
+  <g>
+    <rect x="730.0" y="64" width="420" height="60" rx="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-dasharray="4 4"/>
+    <text x="754.0" y="91" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="1.5" fill="#cbd5e1" text-anchor="start" opacity="1">PRIVATE CORPUS</text>
+    <text x="754.0" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5" font-weight="400" letter-spacing="0" fill="#94a3b8" text-anchor="start" opacity="1">embed + ragSearch  ·  local vector store</text>
+  </g><line x1="940" y1="124" x2="940" y2="161" stroke="#94a3b8" stroke-width="2" opacity="0.6"/><path d="M935 159 L940 166 L945 159" fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <g>
+    <rect x="730.0" y="168" width="420" height="60" rx="12" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.10)"/>
+    <rect x="730.0" y="168" width="5" height="60" rx="2.5" fill="#06b6d4"/>
+    <circle cx="760.0" cy="198.0" r="7" fill="#06b6d4"/>
+    <text x="782.0" y="195" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="1.5" fill="#f1f5f9" text-anchor="start" opacity="1">RESEARCHER</text>
+    <text x="782.0" y="216" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5" font-weight="400" letter-spacing="0" fill="#94a3b8" text-anchor="start" opacity="1">retrieve evidence  ·  propose answer</text>
+  </g><line x1="940" y1="228" x2="940" y2="265" stroke="#94a3b8" stroke-width="2" opacity="0.6"/><path d="M935 263 L940 270 L945 263" fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <g>
+    <rect x="730.0" y="272" width="420" height="60" rx="12" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.10)"/>
+    <rect x="730.0" y="272" width="5" height="60" rx="2.5" fill="#f59e0b"/>
+    <circle cx="760.0" cy="302.0" r="7" fill="#f59e0b"/>
+    <text x="782.0" y="299" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="1.5" fill="#f1f5f9" text-anchor="start" opacity="1">SKEPTIC</text>
+    <text x="782.0" y="320" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5" font-weight="400" letter-spacing="0" fill="#94a3b8" text-anchor="start" opacity="1">counter-retrieve  ·  find contradictions</text>
+  </g><line x1="940" y1="332" x2="940" y2="369" stroke="#94a3b8" stroke-width="2" opacity="0.6"/><path d="M935 367 L940 374 L945 367" fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <g>
+    <rect x="730.0" y="376" width="420" height="60" rx="12" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.10)"/>
+    <rect x="730.0" y="376" width="5" height="60" rx="2.5" fill="#22c55e"/>
+    <circle cx="760.0" cy="406.0" r="7" fill="#22c55e"/>
+    <text x="782.0" y="403" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="1.5" fill="#f1f5f9" text-anchor="start" opacity="1">SYNTHESIZER</text>
+    <text x="782.0" y="424" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5" font-weight="400" letter-spacing="0" fill="#94a3b8" text-anchor="start" opacity="1">reconcile  ·  assign confidence</text>
+  </g><line x1="940" y1="436" x2="940" y2="473" stroke="#22c55e" stroke-width="2" opacity="0.6"/><path d="M935 471 L940 478 L945 471" fill="none" stroke="#22c55e" stroke-width="2" opacity="0.7"/>
+  <g>
+    <rect x="730.0" y="480" width="420" height="60" rx="12" fill="rgba(34,197,94,0.10)" stroke="#22c55e" stroke-opacity="0.5"/>
+    <text x="754.0" y="507" font-family="ui-sans-serif,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="1.5" fill="#22c55e" text-anchor="start" opacity="1">CITED ANSWER</text>
+    <text x="754.0" y="528" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12.5" font-weight="400" letter-spacing="0" fill="#86efac" text-anchor="start" opacity="1">every claim mapped to a source chunk</text>
+    <rect x="1000.0" y="495" width="126" height="30" rx="15" fill="rgba(34,197,94,0.18)" stroke="#22c55e" stroke-opacity="0.5"/>
+    <text x="1063.0" y="514" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="700" letter-spacing="0.2" fill="#bbf7d0" text-anchor="middle" opacity="1">confidence: HIGH</text>
   </g>
 </svg>
