@@ -67,6 +67,21 @@ function parseDeclaredConfidence(text: string): "high" | "medium" | "low" | null
 }
 
 /**
+ * Classify how strongly the Skeptic challenged the Researcher's answer.
+ * This is the spec's contradiction-catch signal: the Skeptic is the agent
+ * responsible for catching injected contradictions, independent of whether
+ * the Synthesizer later chooses to downgrade overall confidence.
+ */
+export function skepticConcernLevel(
+  skepticText: string
+): "none" | "objection" | "irreconcilable" {
+  const s = skepticText.toLowerCase();
+  if (IRRECONCILABLE_SIGNALS.some((k) => s.includes(k))) return "irreconcilable";
+  if (OBJECTION_SIGNALS.some((k) => s.includes(k))) return "objection";
+  return "none";
+}
+
+/**
  * Derive the council's confidence from the debate.
  * The Synthesizer is the arbiter: if it declares a level, we honor it.
  * Otherwise we infer from the strength of the Skeptic's challenge —
@@ -79,10 +94,8 @@ export function deriveConfidence(
   const declared = parseDeclaredConfidence(synthesizerText);
   if (declared) return declared;
 
-  const s = skepticText.toLowerCase();
-  if (IRRECONCILABLE_SIGNALS.some((k) => s.includes(k))) return "low";
-  if (OBJECTION_SIGNALS.some((k) => s.includes(k))) return "medium";
-  return "high";
+  const level = skepticConcernLevel(skepticText);
+  return level === "irreconcilable" ? "low" : level === "objection" ? "medium" : "high";
 }
 
 /**

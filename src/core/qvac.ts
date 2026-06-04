@@ -186,8 +186,11 @@ export async function clearCorpusWorkspace(): Promise<void> {
   try {
     await ragCloseWorkspace({ deleteOnClose: true });
   } catch (error) {
-    // The workspace may not exist yet — that's fine for an idempotent reset.
-    console.error("Failed to clear corpus workspace (may not exist yet):", error);
+    // Expected on a fresh store (no workspace ingested yet) — nothing to clear,
+    // so stay silent. Only surface genuinely unexpected failures.
+    if (!/not open|not exist/i.test(String(error))) {
+      console.error("Failed to clear corpus workspace:", error);
+    }
   }
 }
 
