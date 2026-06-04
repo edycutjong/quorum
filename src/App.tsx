@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import './App.css'
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -21,7 +21,11 @@ interface CouncilResult {
   confidence: 'high' | 'medium' | 'low'
   contradictions: string[]
   finalAnswer: string
+  timestamp?: number
 }
+
+const HISTORY_KEY = 'quorum_history'
+const MAX_HISTORY = 20
 
 // ── Agent Colors ────────────────────────────────────────────────────────────
 
@@ -87,17 +91,41 @@ function mockCouncilDebate(query: string): CouncilResult {
     }
   }
 
-  // Generic response for other queries
+  // For any other query, the council still debates using available Northwind dossier documents
   return {
     query,
     turns: [
-      { agent: 'researcher', content: 'Searching the corpus for relevant documents...', citations: [] },
-      { agent: 'skeptic', content: 'No contradictions found in the available evidence for this query.', citations: [] },
-      { agent: 'synthesizer', content: 'Based on available documents, I have limited information to address this query. Please try a more specific question about the Northwind dossier.', citations: [] },
+      {
+        agent: 'researcher',
+        content: `Searching the Northwind dossier corpus for documents relevant to: "${query}"\n\nThe available corpus contains financial records, board minutes, HR logs, and internal memos from Northwind Ltd. The most pertinent finding: Internal memo REF-4821 references a $2.4M payment to Entity X (Northwind Consultants LLC), authorized by VP Operations Sarah Chen on March 12. The Q1 financial report flags this as an unaudited line item under "Professional Services."`,
+        citations: [
+          { id: 'g1', content: 'VP Chen authorized $2.4M payment to Entity X on March 12', source: 'memo_ref_4821.txt' },
+          { id: 'g2', content: 'Unaudited line item: Professional Services $2.4M', source: 'q1_financial_report.txt' },
+        ],
+      },
+      {
+        agent: 'skeptic',
+        content: `⚠️ While this query doesn't directly ask about the Entity X payment, the Skeptic finds material inconsistencies in the corpus that may be relevant:\n\n1. Board minutes from March 10 show VP Chen was approved for PTO from March 11-15\n2. HR access logs show NO badge swipe and NO VPN login for Chen on March 12\n3. The $2.4M exceeds the $1M board-approval threshold (Governance Charter Section 4.2)\n4. No Statement of Work or deliverables were documented for Entity X\n\nThese contradictions suggest systemic governance issues in the Northwind dossier that may affect the reliability of any document in this corpus.`,
+        citations: [
+          { id: 'g3', content: 'VP Chen approved PTO March 11-15', source: 'board_minutes_march.txt' },
+          { id: 'g4', content: 'March 12: NO badge swipe, no VPN login for Chen', source: 'hr_access_logs.txt' },
+          { id: 'g5', content: '>$1M requires board resolution per Section 4.2', source: 'governance_charter.txt' },
+        ],
+      },
+      {
+        agent: 'synthesizer',
+        content: `The council has reviewed the available Northwind dossier for your query: "${query}"\n\nWhile the corpus has limited direct coverage of this specific topic, the council has identified a critical pattern: key documents in this corpus contain planted contradictions (the VP Chen authorization vs PTO records). This affects the overall trustworthiness of the dossier.\n\nRecommendation: Cross-reference any findings with the flagged contradictions above. The Audit Committee should be notified before relying on any single document from this corpus.`,
+        citations: [
+          { id: 'g6', content: 'Corpus integrity compromised by memo/PTO contradiction', source: 'board_minutes_march.txt' },
+        ],
+      },
     ],
     confidence: 'medium',
-    contradictions: [],
-    finalAnswer: 'Insufficient evidence in the corpus to provide a definitive answer. Try querying about the Entity X payment, VP Chen authorization, or governance compliance.',
+    contradictions: [
+      'Memo REF-4821 claims Chen authorized payment March 12, but she was on PTO March 11-15',
+      'No SOW or deliverables documented for Entity X despite $2.4M payment',
+    ],
+    finalAnswer: `The Northwind dossier has limited direct evidence for this query. However, the council has surfaced material contradictions in the corpus — particularly around the Entity X payment and VP Chen's authorization — that cast doubt on document integrity. Try asking specifically about "Who authorized the Entity X payment?" for a full three-agent investigation.`,
   }
 }
 
@@ -108,35 +136,153 @@ function App() {
   const [result, setResult] = useState<CouncilResult | null>(null)
   const [isDebating, setIsDebating] = useState(false)
   const [expandedTurn, setExpandedTurn] = useState<number | null>(null)
+  const [connectionMode, setConnectionMode] = useState<'checking' | 'live' | 'demo'>('checking')
+  const [history, setHistory] = useState<CouncilResult[]>(() => {
+    try {
+      const saved = localStorage.getItem(HISTORY_KEY)
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
+  const [showHistory, setShowHistory] = useState(false)
 
-  const handleSubmit = useCallback(() => {
+  // Persist history to localStorage
+  const saveToHistory = useCallback((entry: CouncilResult) => {
+    setHistory(prev => {
+      const updated = [{ ...entry, timestamp: Date.now() }, ...prev].slice(0, MAX_HISTORY)
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(updated)) } catch { /* quota */ }
+      return updated
+    })
+  }, [])
+
+  const clearHistory = useCallback(() => {
+    setHistory([])
+    try { localStorage.removeItem(HISTORY_KEY) } catch { /* noop */ }
+  }, [])
+
+  const loadFromHistory = useCallback((entry: CouncilResult) => {
+    setResult(entry)
+    setQuery(entry.query)
+    setExpandedTurn(null)
+    setShowHistory(false)
+  }, [])
+
+  // Check backend connectivity on mount
+  useEffect(() => {
+    fetch('/api/health')
+      .then((r) => r.ok ? setConnectionMode('live') : setConnectionMode('demo'))
+      .catch(() => setConnectionMode('demo'))
+  }, [])
+  const [currentAgent, setCurrentAgent] = useState<string | null>(null)
+
+  const handleSubmit = useCallback(async () => {
     if (!query.trim()) return
     setIsDebating(true)
     setResult(null)
     setExpandedTurn(null)
+    setCurrentAgent('researcher')
 
-    // Simulate council debate delay
+    // Try streaming SSE endpoint (progressive agent rendering)
+    if (connectionMode === 'live') {
+      try {
+        const res = await fetch('/api/council/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        })
+
+        if (res.ok && res.body) {
+          const reader = res.body.getReader()
+          const decoder = new TextDecoder()
+          let buffer = ''
+          const streamedTurns: AgentTurn[] = []
+          let finalData: { confidence?: 'high' | 'medium' | 'low'; finalAnswer?: string; contradictions?: string[] } = {}
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            buffer += decoder.decode(value, { stream: true })
+
+            // Parse SSE events from buffer
+            const lines = buffer.split('\n')
+            buffer = lines.pop() || '' // Keep incomplete line in buffer
+
+            let eventType = ''
+            for (const line of lines) {
+              if (line.startsWith('event: ')) {
+                eventType = line.slice(7).trim()
+              } else if (line.startsWith('data: ') && eventType) {
+                try {
+                  const data = JSON.parse(line.slice(6))
+
+                  if (eventType === 'turn') {
+                    streamedTurns.push(data)
+                    // Update UI progressively — show turns as they arrive
+                    const nextAgent = data.agent === 'researcher' ? 'skeptic'
+                      : data.agent === 'skeptic' ? 'synthesizer' : null
+                    setCurrentAgent(nextAgent)
+                    setResult(prev => ({
+                      query,
+                      turns: [...streamedTurns],
+                      confidence: prev?.confidence || 'medium',
+                      contradictions: prev?.contradictions || [],
+                      finalAnswer: prev?.finalAnswer || '',
+                    }))
+                  } else if (eventType === 'result') {
+                    finalData = data
+                  } else if (eventType === 'error') {
+                    console.error('[Quorum] Stream error:', data.error)
+                  }
+                } catch { /* malformed JSON, skip */ }
+                eventType = ''
+              }
+            }
+          }
+
+          // Compose final result
+          const liveResult: CouncilResult = {
+            query,
+            turns: streamedTurns,
+            confidence: finalData.confidence || 'medium',
+            contradictions: finalData.contradictions || [],
+            finalAnswer: finalData.finalAnswer || '',
+          }
+          setResult(liveResult)
+          saveToHistory(liveResult)
+          setCurrentAgent(null)
+          setIsDebating(false)
+          return
+        }
+      } catch (_err) {
+        console.warn('[Quorum] Streaming failed, falling back to demo mode')
+        setConnectionMode('demo')
+      }
+    }
+
+    // Fallback: mock council debate
+    setCurrentAgent('researcher')
     setTimeout(() => {
       const debateResult = mockCouncilDebate(query)
       setResult(debateResult)
+      saveToHistory(debateResult)
+      setCurrentAgent(null)
       setIsDebating(false)
     }, 1500)
-  }, [query])
+  }, [query, connectionMode, saveToHistory])
 
   return (
     <div className="app">
       {/* Header */}
       <header className="header">
         <div className="header-left">
-          <span className="logo">🏛️</span>
+          <img className="logo" src="/icon.svg" alt="Quorum" />
           <div>
             <h1 className="title">Quorum</h1>
             <p className="subtitle">Multi-Agent Document Council</p>
           </div>
         </div>
-        <div className="network-pill">
-          <span className="network-dot" />
-          OFFLINE · QVAC
+        <div className={`network-pill ${connectionMode === 'live' ? 'network-live' : ''}`}>
+          <span className={`network-dot ${connectionMode === 'live' ? 'dot-live' : ''}`} />
+          {connectionMode === 'live' ? 'LIVE · QVAC' : connectionMode === 'checking' ? 'CHECKING...' : 'DEMO · OFFLINE'}
         </div>
       </header>
 
@@ -150,20 +296,68 @@ function App() {
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() }}}
           rows={2}
         />
-        <button
-          className="submit-btn"
-          onClick={handleSubmit}
-          disabled={!query.trim() || isDebating}
-        >
-          {isDebating ? '⏳ Council is debating...' : '🏛️ Convene Council'}
-        </button>
+        <div className="query-actions">
+          <button
+            className="submit-btn"
+            onClick={handleSubmit}
+            disabled={!query.trim() || isDebating}
+          >
+            {isDebating ? '⏳ Council is debating...' : '🏛️ Convene Council'}
+          </button>
+          {history.length > 0 && (
+            <button
+              className="history-toggle-btn"
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              📜 History ({history.length})
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Loading State */}
+      {/* History Panel */}
+      {showHistory && history.length > 0 && (
+        <div className="history-panel">
+          <div className="history-header">
+            <h3 className="section-title" style={{ margin: 0 }}>📜 Past Debates</h3>
+            <button className="history-clear-btn" onClick={clearHistory}>Clear All</button>
+          </div>
+          <div className="history-list">
+            {history.map((entry, i) => {
+              const conf = CONFIDENCE_STYLES[entry.confidence]
+              const time = entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+              return (
+                <button key={i} className="history-item" onClick={() => loadFromHistory(entry)}>
+                  <div className="history-item-top">
+                    <span className="history-query">{entry.query}</span>
+                    <span className="history-time">{time}</span>
+                  </div>
+                  <div className="history-item-bottom">
+                    <span className="history-confidence" style={{ color: conf.color }}>
+                      {conf.icon} {conf.label}
+                    </span>
+                    {entry.contradictions.length > 0 && (
+                      <span className="history-contras">🔴 {entry.contradictions.length}</span>
+                    )}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
       {isDebating && (
         <div className="debating">
           <div className="debating-spinner" />
-          <p>Three agents are cross-examining the corpus...</p>
+          {currentAgent ? (
+            <p>
+              {currentAgent === 'researcher' && '🔍 Researcher is retrieving documents...'}
+              {currentAgent === 'skeptic' && '⚡ Skeptic is challenging the findings...'}
+              {currentAgent === 'synthesizer' && '🧩 Synthesizer is reconciling positions...'}
+            </p>
+          ) : (
+            <p>Finalizing council verdict...</p>
+          )}
         </div>
       )}
 
