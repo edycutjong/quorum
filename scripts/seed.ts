@@ -9,6 +9,7 @@
 
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
+import { close } from "@qvac/sdk";
 import { ingestCorpus, resetCorpus, releaseEmbeddingModel } from "../src/core/rag.js";
 
 const DOSSIER_DIR = join(process.cwd(), "data/fixtures/northwind_dossier");
@@ -48,7 +49,13 @@ async function main() {
   console.log("\n🏛️  Ready for council debates!");
 }
 
-main().catch((err) => {
-  console.error("❌ Seed failed:", err);
-  process.exit(1);
-});
+main()
+  .then(async () => {
+    await close().catch(() => {}); // shut down the SDK worker so the process exits
+    process.exit(0);
+  })
+  .catch(async (err) => {
+    console.error("❌ Seed failed:", err);
+    await close().catch(() => {});
+    process.exit(1);
+  });

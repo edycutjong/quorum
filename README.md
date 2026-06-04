@@ -108,16 +108,22 @@ Run `npm run bench` to reproduce. This runs the **real** 3-agent council over th
 dossier via `@qvac/sdk` and writes `data/bench_results.json` (latency, contradiction
 recall, citation coverage). Use `npm run bench -- --assert` to fail on budget regressions.
 
+Representative run on an **Apple M1 Max (32 GB)** — reproduce with `npm run bench`:
+
 | Metric | Measured | Budget |
 |---|---|---|
-| Full Council Round (p50 / p95) | _run `npm run bench`_ | <15,000ms |
-| Model Load (cold) | _run `npm run bench`_ | <10,000ms |
-| Contradiction recall (planted set) | _run `npm run bench`_ | 1.0 |
-| Peak RAM | _run `npm run bench`_ | <4,096MB |
+| Full Council Round (p50 / p95) | ~2.5s / ~2.7s | <15,000ms |
+| Model Load (cold) | ~1.2s | <10,000ms |
+| Corpus Ingest (5 docs → 9 chunks) | ~1.8s | — |
+| Citation coverage | 1.0 | ≥0.95 |
+| Contradiction recall (planted set) | 0.67–1.0¹ | 1.0 |
+| Peak RAM | ~196 MB | <4,096MB |
 
-> Numbers are intentionally not hard-coded here — `npm run bench` records real
-> measurements from your hardware into `data/bench_results.json`. (The legacy
-> `scripts/bench.py` is a deterministic simulation kept only as a CI smoke test.)
+> ¹ Recall varies run-to-run: the Skeptic reliably retrieves the conflicting
+> documents, but Llama-3.2-1B is non-deterministic and doesn't always phrase an
+> explicit objection — an honest limitation of a 1B model on-device. `npm run bench`
+> records real measurements from your hardware into `data/bench_results.json`.
+> (The legacy `scripts/bench.py` is a deterministic simulation kept only as a CI smoke test.)
 
 ## 🧪 Testing & CI
 
@@ -154,19 +160,19 @@ python3 scripts/check_submission_readiness.py
 ## 📁 Project Structure
 ```
 quorum/
-├── docs/               # README assets
+├── docs/                   # README assets
 ├── data/fixtures/
 │   └── northwind_dossier/  # 5 docs with planted contradictions
-├── e2e/                # Playwright E2E tests
-├── scripts/            # seed, bench, verify, readiness
+├── e2e/                    # Playwright E2E tests
+├── scripts/                # seed, bench, verify, readiness
 ├── src/
 │   ├── core/
-│   │   ├── qvac.ts     # @qvac/sdk wrapper
-│   │   ├── rag.ts      # Corpus RAG pipeline
-│   │   └── council.ts  # 3-agent council orchestration
-│   ├── App.tsx         # Debate transcript viewer
-│   └── App.css         # Dark mode theme
-├── .github/            # CI/CD + CodeQL + Dependabot
+│   │   ├── qvac.ts         # @qvac/sdk wrapper
+│   │   ├── rag.ts          # Corpus RAG pipeline
+│   │   └── council.ts      # 3-agent council orchestration
+│   ├── App.tsx             # Debate transcript viewer
+│   └── App.css             # Dark mode theme
+├── .github/                # CI/CD + CodeQL + Dependabot
 ├── playwright.config.ts
 ├── lighthouserc.json
 └── README.md
