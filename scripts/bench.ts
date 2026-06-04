@@ -20,7 +20,7 @@ import { fileURLToPath } from "url";
 import os from "os";
 
 import { ingestCorpus, resetCorpus, releaseEmbeddingModel } from "../src/core/rag.js";
-import { runQuorumCouncil } from "../src/core/council.js";
+import { runQuorumCouncil, skepticConcernLevel } from "../src/core/council.js";
 import { loadLLMModel, LLAMA_MODEL_ID } from "../src/core/qvac.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -113,8 +113,11 @@ async function main() {
     const t0 = performance.now();
     const council = await runQuorumCouncil(query);
     const totalMs = round(performance.now() - t0);
-    // A contradiction is "caught" when the council declines high confidence.
-    const contradictionCaught = council.confidence !== "high";
+    // Per the PRD, the metric is whether the SKEPTIC catches the contradiction —
+    // independent of whether the Synthesizer later downgrades overall confidence.
+    const skepticTurn = council.turns.find((t) => t.role === "skeptic");
+    const skepticCaught = skepticTurn ? skepticConcernLevel(skepticTurn.content) !== "none" : false;
+    const contradictionCaught = skepticCaught || council.confidence !== "high";
     results.push({
       query,
       total_ms: totalMs,
