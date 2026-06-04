@@ -5,6 +5,7 @@ const mockLoadModel = vi.fn();
 const mockUnloadModel = vi.fn();
 const mockRagIngest = vi.fn();
 const mockRagSearch = vi.fn();
+const mockRagCloseWorkspace = vi.fn();
 
 vi.mock("@qvac/sdk", () => ({
   loadModel: (...args: unknown[]) => mockLoadModel(...args),
@@ -12,6 +13,7 @@ vi.mock("@qvac/sdk", () => ({
   completion: vi.fn(),
   ragIngest: (...args: unknown[]) => mockRagIngest(...args),
   ragSearch: (...args: unknown[]) => mockRagSearch(...args),
+  ragCloseWorkspace: (...args: unknown[]) => mockRagCloseWorkspace(...args),
   textToSpeech: vi.fn(),
   startQVACProvider: vi.fn(),
   stopQVACProvider: vi.fn(),
@@ -26,6 +28,9 @@ import {
   ingestCorpus,
   searchCorpus,
   searchMedicalKnowledge,
+  resetCorpus,
+  chunkText,
+  prepareDocumentChunks,
 } from "../rag";
 
 describe("rag.ts — corpus pipeline", () => {
@@ -85,6 +90,19 @@ describe("rag.ts — corpus pipeline", () => {
     });
   });
 
+  describe("resetCorpus", () => {
+    it("clears the default corpus workspace (idempotent re-seed)", async () => {
+      mockRagCloseWorkspace.mockResolvedValue(undefined);
+      await resetCorpus();
+      expect(mockRagCloseWorkspace).toHaveBeenCalledWith({ deleteOnClose: true });
+    });
+
+    it("does not throw when there is no existing workspace", async () => {
+      mockRagCloseWorkspace.mockRejectedValue(new Error("missing"));
+      await expect(resetCorpus()).resolves.toBeUndefined();
+    });
+  });
+
   describe("ingestCorpus", () => {
     it("initializes the embedding model before ingesting", async () => {
       mockLoadModel.mockResolvedValue("embed-id");
@@ -93,21 +111,33 @@ describe("rag.ts — corpus pipeline", () => {
       expect(mockLoadModel).toHaveBeenCalled();
     });
 
-    it("chunks documents by default (chunk=true)", async () => {
+    it("ingests unchunked at the SDK level (we chunk ourselves)", async () => {
       mockLoadModel.mockResolvedValue("embed-id");
       mockRagIngest.mockResolvedValue({ success: true });
       await ingestCorpus(["doc"]);
+      // We pre-chunk + re-prefix, so the SDK must not chunk again.
       expect(mockRagIngest).toHaveBeenCalledWith(
-        expect.objectContaining({ chunk: true })
+        expect.objectContaining({ chunk: false })
       );
     });
 
-    it("honors chunk=false when explicitly disabled", async () => {
+    it("splits a long document into multiple source-tagged chunks", async () => {
       mockLoadModel.mockResolvedValue("embed-id");
       mockRagIngest.mockResolvedValue({ success: true });
-      await ingestCorpus(["doc"], false);
+      const longBody = Array.from({ length: 6 }, (_, i) => `Paragraph ${i} ` + "x".repeat(300)).join("\n\n");
+      await ingestCorpus([`[Source: big.txt]\n${longBody}`]);
+      const sent = mockRagIngest.mock.calls[0][0].documents as string[];
+      expect(sent.length).toBeGreaterThan(1);
+      // EVERY chunk carries the source — the bug we are fixing.
+      expect(sent.every((c) => c.startsWith("[Source: big.txt]"))).toBe(true);
+    });
+
+    it("passes documents through verbatim when chunk=false", async () => {
+      mockLoadModel.mockResolvedValue("embed-id");
+      mockRagIngest.mockResolvedValue({ success: true });
+      await ingestCorpus(["[Source: a.txt]\nverbatim body"], false);
       expect(mockRagIngest).toHaveBeenCalledWith(
-        expect.objectContaining({ chunk: false })
+        expect.objectContaining({ chunk: false, documents: ["[Source: a.txt]\nverbatim body"] })
       );
     });
 
@@ -290,6 +320,77 @@ describe("rag.ts — corpus pipeline", () => {
   describe("searchMedicalKnowledge alias", () => {
     it("is the same function as searchCorpus (backward-compat alias)", () => {
       expect(searchMedicalKnowledge).toBe(searchCorpus);
+    });
+  });
+
+  describe("chunkText", () => {
+    it("returns an empty array for empty/whitespace input", () => {
+      expect(chunkText("")).toEqual([]);
+      expect(chunkText("   \n  ")).toEqual([]);
+    });
+
+    it("returns a single chunk when text fits within the budget", () => {
+      expect(chunkText("short text", 100)).toEqual(["short text"]);
+    });
+
+    it("splits on paragraph boundaries when over the budget", () => {
+      const text = "a".repeat(40) + "\n\n" + "b".repeat(40);
+      const chunks = chunkText(text, 50);
+      expect(chunks).toHaveLength(2);
+      expect(chunks[0]).toBe("a".repeat(40));
+      expect(chunks[1]).toBe("b".repeat(40));
+    });
+
+    it("hard-splits a single paragraph that exceeds the budget", () => {
+      const chunks = chunkText("x".repeat(250), 100);
+      expect(chunks).toHaveLength(3);
+      expect(chunks.every((c) => c.length <= 100)).toBe(true);
+    });
+
+    it("never emits a chunk larger than maxChars", () => {
+      const text = Array.from({ length: 5 }, () => "word ".repeat(60)).join("\n\n");
+      const chunks = chunkText(text, 200);
+      expect(chunks.every((c) => c.length <= 200)).toBe(true);
+    });
+
+    it("packs adjacent small paragraphs into one chunk", () => {
+      const text = "p1\n\np2\n\n" + "x".repeat(60);
+      const chunks = chunkText(text, 50);
+      expect(chunks[0]).toBe("p1\n\np2");
+    });
+
+    it("drops a whitespace-only segment when hard-splitting", () => {
+      const chunks = chunkText("a".repeat(50) + " ".repeat(50) + "b".repeat(10), 50);
+      expect(chunks).toEqual(["a".repeat(50), "b".repeat(10)]);
+    });
+  });
+
+  describe("prepareDocumentChunks", () => {
+    it("re-attaches the source prefix to every chunk", () => {
+      const body = "p1 " + "x".repeat(300) + "\n\n" + "p2 " + "y".repeat(300);
+      const chunks = prepareDocumentChunks(`[Source: file.txt]\n${body}`, 300);
+      expect(chunks.length).toBeGreaterThan(1);
+      expect(chunks.every((c) => c.startsWith("[Source: file.txt]\n"))).toBe(true);
+    });
+
+    it("leaves content unprefixed when there is no source", () => {
+      const chunks = prepareDocumentChunks("just body text", 300);
+      expect(chunks).toEqual(["just body text"]);
+    });
+
+    it("keeps a short sourced document as a single attributed chunk", () => {
+      const chunks = prepareDocumentChunks("[Source: a.txt]\nhello world");
+      expect(chunks).toEqual(["[Source: a.txt]\nhello world"]);
+    });
+
+    it("produces chunks that searchCorpus can attribute back to the source", async () => {
+      // Round-trip: a later chunk (not the first) still resolves its source.
+      const body = "p0 " + "x".repeat(300) + "\n\n" + "p1 " + "y".repeat(300);
+      const chunks = prepareDocumentChunks(`[Source: hr_logs.txt]\n${body}`, 300);
+      mockLoadModel.mockResolvedValue("embed-id");
+      mockRagSearch.mockResolvedValue([{ content: chunks[1] }]);
+      const res = await searchCorpus("q");
+      expect(res[0].source).toBe("hr_logs.txt");
     });
   });
 });

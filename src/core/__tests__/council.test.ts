@@ -19,7 +19,7 @@ vi.mock("@qvac/sdk", () => ({
   TTS_EN_SUPERTONIC_Q8_0: { src: "tts-src" },
 }));
 
-import { runQuorumCouncil } from "../council";
+import { runQuorumCouncil, deriveConfidence } from "../council";
 
 /** Queue three completion responses (researcher, skeptic, synthesizer). */
 function mockCouncilCompletions(researcher: string, skeptic: string, synthesizer: string) {
@@ -184,6 +184,49 @@ describe("council.ts — multi-agent debate", () => {
       mockCouncilCompletions("R", "This CONTRADICTS the report.", "Synth");
       const result = await runQuorumCouncil("q");
       expect(result.confidence).toBe("medium");
+    });
+
+    it("reports low confidence when the skeptic finds an irreconcilable conflict", async () => {
+      mockCouncilCompletions("R", "These records are irreconcilable.", "Synth");
+      const result = await runQuorumCouncil("q");
+      expect(result.confidence).toBe("low");
+    });
+
+    it("honors a confidence level explicitly declared by the synthesizer", async () => {
+      mockCouncilCompletions("R", "Looks fine.", "Final verdict. Confidence: low.");
+      const result = await runQuorumCouncil("q");
+      expect(result.confidence).toBe("low");
+    });
+  });
+
+  describe("deriveConfidence (unit)", () => {
+    it("returns high when the skeptic raises no objection", () => {
+      expect(deriveConfidence("All sources agree.", "verdict")).toBe("high");
+    });
+
+    it("returns medium on a plain contradiction", () => {
+      expect(deriveConfidence("This contradicts the memo.", "verdict")).toBe("medium");
+    });
+
+    it("returns medium for other objection signals", () => {
+      expect(deriveConfidence("The citation is unsupported.", "verdict")).toBe("medium");
+      expect(deriveConfidence("There is a discrepancy here.", "verdict")).toBe("medium");
+    });
+
+    it("returns low for irreconcilable / fraud signals", () => {
+      expect(deriveConfidence("The accounts are irreconcilable.", "verdict")).toBe("low");
+      expect(deriveConfidence("This looks like fraud.", "verdict")).toBe("low");
+      expect(deriveConfidence("The memo directly contradicts the logs.", "verdict")).toBe("low");
+    });
+
+    it("lets the synthesizer's declared confidence override skeptic heuristics", () => {
+      // Skeptic implies a conflict, but the synthesizer reconciles it to high.
+      expect(deriveConfidence("This contradicts the memo.", "Confidence: high")).toBe("high");
+    });
+
+    it("parses 'low confidence' phrasing as well as 'confidence: low'", () => {
+      expect(deriveConfidence("ok", "I have low confidence in this.")).toBe("low");
+      expect(deriveConfidence("ok", "Confidence: medium")).toBe("medium");
     });
   });
 

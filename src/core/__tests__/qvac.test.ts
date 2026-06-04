@@ -6,6 +6,7 @@ const mockUnloadModel = vi.fn();
 const mockCompletion = vi.fn();
 const mockRagIngest = vi.fn();
 const mockRagSearch = vi.fn();
+const mockRagCloseWorkspace = vi.fn();
 const mockTextToSpeech = vi.fn();
 const mockStartQVACProvider = vi.fn();
 const mockStopQVACProvider = vi.fn();
@@ -16,6 +17,7 @@ vi.mock("@qvac/sdk", () => ({
   completion: (...args: unknown[]) => mockCompletion(...args),
   ragIngest: (...args: unknown[]) => mockRagIngest(...args),
   ragSearch: (...args: unknown[]) => mockRagSearch(...args),
+  ragCloseWorkspace: (...args: unknown[]) => mockRagCloseWorkspace(...args),
   textToSpeech: (...args: unknown[]) => mockTextToSpeech(...args),
   startQVACProvider: (...args: unknown[]) => mockStartQVACProvider(...args),
   stopQVACProvider: (...args: unknown[]) => mockStopQVACProvider(...args),
@@ -32,6 +34,7 @@ import {
   runCompletion,
   runSaveEmbeddings,
   runRagSearch,
+  clearCorpusWorkspace,
   runTextToSpeech,
   startP2PProvider,
   stopP2PProvider,
@@ -273,6 +276,19 @@ describe("qvac.ts — SDK wrappers", () => {
     it("propagates search failures", async () => {
       mockRagSearch.mockRejectedValue(new Error("Search failed"));
       await expect(runRagSearch({ modelId: "m", query: "q" })).rejects.toThrow("Search failed");
+    });
+  });
+
+  describe("clearCorpusWorkspace", () => {
+    it("deletes the default workspace on close", async () => {
+      mockRagCloseWorkspace.mockResolvedValue(undefined);
+      await clearCorpusWorkspace();
+      expect(mockRagCloseWorkspace).toHaveBeenCalledWith({ deleteOnClose: true });
+    });
+
+    it("swallows errors when the workspace does not exist yet", async () => {
+      mockRagCloseWorkspace.mockRejectedValue(new Error("no workspace"));
+      await expect(clearCorpusWorkspace()).resolves.toBeUndefined();
     });
   });
 

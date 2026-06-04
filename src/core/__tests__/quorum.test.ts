@@ -56,6 +56,7 @@ describe("Quorum Core Module", () => {
     await releaseEmbeddingModel(); // reset static state
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   describe("rag.ts corpus tests", () => {
