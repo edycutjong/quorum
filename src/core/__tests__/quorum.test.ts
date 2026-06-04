@@ -54,6 +54,8 @@ describe("Quorum Core Module", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     await releaseEmbeddingModel(); // reset static state
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
   describe("rag.ts corpus tests", () => {
@@ -91,14 +93,22 @@ describe("Quorum Core Module", () => {
       mockLoadModel.mockResolvedValue("embed-lifecycle-id");
       mockRagSearch.mockResolvedValue([
         { id: "doc-1", content: "some text", source: "doc.txt", score: 0.8 },
+        { id: "doc-2", content: "[Source: test.txt] some content with source match", score: 0.9 },
       ]);
-      const res = await searchCorpus("query", 1);
-      expect(res).toHaveLength(1);
+      const res = await searchCorpus("query", 2);
+      expect(res).toHaveLength(2);
       expect(res[0]).toEqual({
         id: "doc-1",
         content: "some text",
         source: "doc.txt",
         score: 0.8,
+        metadata: undefined,
+      });
+      expect(res[1]).toEqual({
+        id: "doc-2",
+        content: "some content with source match",
+        source: "test.txt",
+        score: 0.9,
         metadata: undefined,
       });
     });
@@ -136,12 +146,12 @@ describe("Quorum Core Module", () => {
       
       // RAG returns researcher and skeptic materials
       mockRagSearch
-        .mockResolvedValueOnce([{ id: "d1", content: "Entity X was paid.", source: "memo.txt" }])
+        .mockResolvedValueOnce([{ id: "d1", content: "Entity X was paid. " + "B".repeat(400), source: "memo.txt" }])
         .mockResolvedValueOnce([{ id: "d2", content: "Safety warning details", source: "warning.txt" }]);
 
       // Completion responds sequentially for Researcher, Skeptic, and Synthesizer
       mockCompletion
-        .mockResolvedValueOnce({ text: Promise.resolve("Researcher: It is approved.") })
+        .mockResolvedValueOnce({ text: Promise.resolve("Researcher: It is approved. " + "A".repeat(600)) })
         .mockResolvedValueOnce({ text: Promise.resolve("Skeptic: Looks fine, no objections.") })
         .mockResolvedValueOnce({ text: Promise.resolve("Synthesizer: Consensus is positive.") });
 
@@ -149,7 +159,7 @@ describe("Quorum Core Module", () => {
       
       expect(result.turns).toHaveLength(3);
       expect(result.turns[0].role).toBe("researcher");
-      expect(result.turns[0].content).toBe("Researcher: It is approved.");
+      expect(result.turns[0].content).toBe("Researcher: It is approved. " + "A".repeat(600));
       expect(result.turns[1].role).toBe("skeptic");
       expect(result.turns[1].content).toBe("Skeptic: Looks fine, no objections.");
       expect(result.turns[2].role).toBe("synthesizer");
