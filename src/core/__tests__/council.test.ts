@@ -19,7 +19,7 @@ vi.mock("@qvac/sdk", () => ({
   TTS_EN_SUPERTONIC_Q8_0: { src: "tts-src" },
 }));
 
-import { runQuorumCouncil, deriveConfidence } from "../council";
+import { runQuorumCouncil, deriveConfidence, skepticConcernLevel } from "../council";
 
 /** Queue three completion responses (researcher, skeptic, synthesizer). */
 function mockCouncilCompletions(researcher: string, skeptic: string, synthesizer: string) {
@@ -227,6 +227,26 @@ describe("council.ts — multi-agent debate", () => {
     it("parses 'low confidence' phrasing as well as 'confidence: low'", () => {
       expect(deriveConfidence("ok", "I have low confidence in this.")).toBe("low");
       expect(deriveConfidence("ok", "Confidence: medium")).toBe("medium");
+    });
+  });
+
+  describe("skepticConcernLevel (PRD contradiction-catch signal)", () => {
+    it("reports none when the skeptic agrees", () => {
+      expect(skepticConcernLevel("All sources are consistent.")).toBe("none");
+    });
+
+    it("reports objection on a plain contradiction or gap", () => {
+      expect(skepticConcernLevel("This contradicts the memo.")).toBe("objection");
+      expect(skepticConcernLevel("The claim is unsupported.")).toBe("objection");
+    });
+
+    it("reports irreconcilable on strong-conflict signals", () => {
+      expect(skepticConcernLevel("The records are irreconcilable.")).toBe("irreconcilable");
+      expect(skepticConcernLevel("This appears to be fraud.")).toBe("irreconcilable");
+    });
+
+    it("is case-insensitive", () => {
+      expect(skepticConcernLevel("CONTRADICTS the logs")).toBe("objection");
     });
   });
 

@@ -286,9 +286,22 @@ describe("qvac.ts — SDK wrappers", () => {
       expect(mockRagCloseWorkspace).toHaveBeenCalledWith({ deleteOnClose: true });
     });
 
-    it("swallows errors when the workspace does not exist yet", async () => {
-      mockRagCloseWorkspace.mockRejectedValue(new Error("no workspace"));
+    it("silently ignores the expected 'workspace not open' error on a fresh store", async () => {
+      const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      errSpy.mockClear();
+      mockRagCloseWorkspace.mockRejectedValue(
+        new Error("RAG_WORKSPACE_NOT_OPEN: RAG workspace 'default' is not open")
+      );
       await expect(clearCorpusWorkspace()).resolves.toBeUndefined();
+      expect(errSpy).not.toHaveBeenCalled();
+    });
+
+    it("logs genuinely unexpected close failures", async () => {
+      const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      errSpy.mockClear();
+      mockRagCloseWorkspace.mockRejectedValue(new Error("disk failure"));
+      await expect(clearCorpusWorkspace()).resolves.toBeUndefined();
+      expect(errSpy).toHaveBeenCalled();
     });
   });
 
