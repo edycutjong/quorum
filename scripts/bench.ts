@@ -19,7 +19,7 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import os from "os";
 
-import { ingestCorpus, releaseEmbeddingModel } from "../src/core/rag.js";
+import { ingestCorpus, resetCorpus, releaseEmbeddingModel } from "../src/core/rag.js";
 import { runQuorumCouncil } from "../src/core/council.js";
 import { loadLLMModel, LLAMA_MODEL_ID } from "../src/core/qvac.js";
 
@@ -86,6 +86,7 @@ async function main() {
   const documents = files.map((f) => `[Source: ${f}]\n${readFileSync(join(DOSSIER_DIR, f), "utf-8")}`);
   console.log(`\n  Ingesting ${files.length} documents...`);
   const ingestStart = performance.now();
+  await resetCorpus(); // clean slate so latency/recall aren't skewed by stale duplicates
   await ingestCorpus(documents, true);
   const ingestMs = round(performance.now() - ingestStart);
   console.log(`  Corpus ingested in ${ingestMs}ms`);

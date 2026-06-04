@@ -9,7 +9,7 @@
 
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
-import { ingestCorpus, releaseEmbeddingModel } from "../src/core/rag.js";
+import { ingestCorpus, resetCorpus, releaseEmbeddingModel } from "../src/core/rag.js";
 
 const DOSSIER_DIR = join(process.cwd(), "data/fixtures/northwind_dossier");
 
@@ -36,6 +36,7 @@ async function main() {
   console.log(`\n⏳ Ingesting ${documents.length} documents into RAG corpus...`);
   const start = Date.now();
 
+  await resetCorpus(); // idempotent re-seed: clear any prior corpus first
   await ingestCorpus(documents, true);
 
   const elapsed = Date.now() - start;

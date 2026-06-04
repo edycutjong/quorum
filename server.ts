@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { runQuorumCouncil } from "./src/core/council.js";
-import { ingestCorpus } from "./src/core/rag.js";
+import { ingestCorpus, resetCorpus } from "./src/core/rag.js";
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 
@@ -132,7 +132,8 @@ app.post("/api/seed", async (_req, res) => {
       return `[Source: ${f}]\n${content}`;
     });
 
-    console.log(`[seed] Ingesting ${documents.length} documents from ${dossierDir}`);
+    console.log(`[seed] Resetting corpus, then ingesting ${documents.length} documents from ${dossierDir}`);
+    await resetCorpus(); // idempotent: avoid accumulating duplicate chunks on re-seed
     await ingestCorpus(documents, true);
     console.log(`[seed] Corpus ingestion complete`);
 

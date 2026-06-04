@@ -6,6 +6,7 @@ import {
   completion,
   ragIngest,
   ragSearch,
+  ragCloseWorkspace,
   textToSpeech,
   startQVACProvider,
   stopQVACProvider,
@@ -173,6 +174,20 @@ export async function runSaveEmbeddings(params: EmbedParams) {
   } catch (error) {
     console.error("RAG embedding save failed:", error);
     throw error;
+  }
+}
+
+/**
+ * Delete the default RAG workspace from disk so the next ingest starts clean.
+ * Makes seeding idempotent — re-seeding can't accumulate duplicate chunks.
+ * Safe to call when the workspace doesn't exist yet.
+ */
+export async function clearCorpusWorkspace(): Promise<void> {
+  try {
+    await ragCloseWorkspace({ deleteOnClose: true });
+  } catch (error) {
+    // The workspace may not exist yet — that's fine for an idempotent reset.
+    console.error("Failed to clear corpus workspace (may not exist yet):", error);
   }
 }
 
