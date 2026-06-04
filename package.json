@@ -9,6 +9,7 @@
     "dev": "vite",
     "server": "npx tsx server.ts",
     "seed": "npx tsx scripts/seed.ts",
+    "bench": "npx tsx scripts/bench.ts",
     "start": "concurrently -n server,vite -c cyan,magenta \"npm run server\" \"npm run dev\"",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
@@ -16,7 +17,8 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "ci": "npm run lint && npm run typecheck && npm test",
+    "test:coverage": "vitest run --coverage",
+    "ci": "npm run lint && npm run typecheck && npm run test:coverage",
     "e2e": "npx playwright test",
     "e2e:ui": "npx playwright test --ui",
     "lighthouse": "npx lhci autorun"
