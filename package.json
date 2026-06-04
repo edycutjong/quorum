@@ -7,6 +7,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
+    "server": "npx tsx server.ts",
+    "seed": "npx tsx scripts/seed.ts",
+    "start": "concurrently -n server,vite -c cyan,magenta \"npm run server\" \"npm run dev\"",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -20,6 +23,9 @@
   },
   "dependencies": {
     "@qvac/sdk": "latest",
+    "concurrently": "^10.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
@@ -27,6 +33,8 @@
     "@eslint/js": "^10.0.1",
     "@lhci/cli": "^0.14.0",
     "@playwright/test": "^1.52.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -36,6 +44,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "tsx": "^4.22.4",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
