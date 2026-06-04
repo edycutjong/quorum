@@ -9,7 +9,14 @@ Usage:
   python3 scripts/bench.py            # Run benchmarks
   python3 scripts/bench.py --assert   # Run + fail if regressions detected
 """
-import os, sys, time, json, statistics, platform, subprocess, resource
+import os
+import sys
+import time
+import json
+import statistics
+import platform
+import subprocess
+import resource
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -133,7 +140,7 @@ def main():
         "queries_run": len(QUERIES),
     }
 
-    print(f"\n  ── Summary ──")
+    print("\n  ── Summary ──")
     print(f"  Council p50: {stats['council_p50_ms']:.1f}ms | p95: {stats['council_p95_ms']:.1f}ms | mean: {stats['council_mean_ms']:.1f}ms")
     print(f"  RAG p50: {stats['rag_p50_ms']:.1f}ms | mean: {stats['rag_mean_ms']:.1f}ms")
     print(f"  Peak RAM: {peak_ram:.1f} MB")
@@ -152,7 +159,7 @@ def main():
     out_path = os.path.join(out_dir, "bench_results.json")
     with open(out_path, "w") as f:
         json.dump(report, f, indent=2)
-    print(f"\n  📄 Results saved to data/bench_results.json")
+    print("\n  📄 Results saved to data/bench_results.json")
 
     # Assert mode
     if assert_mode:
@@ -164,12 +171,12 @@ def main():
         if peak_ram > BUDGET["peak_ram_mb"]:
             failures.append(f"peak_ram {peak_ram}MB > budget {BUDGET['peak_ram_mb']}MB")
         if failures:
-            print(f"\n  ❌ REGRESSION DETECTED:")
+            print("\n  ❌ REGRESSION DETECTED:")
             for f_msg in failures:
                 print(f"    • {f_msg}")
             sys.exit(1)
         else:
-            print(f"\n  ✅ All benchmarks within budget.")
+            print("\n  ✅ All benchmarks within budget.")
 
     print(f"\n{'=' * 64}")
     sys.exit(0)
