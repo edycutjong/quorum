@@ -252,7 +252,7 @@ function App() {
           setIsDebating(false)
           return
         }
-      } catch (_err) {
+      } catch {
         console.warn('[Quorum] Streaming failed, falling back to demo mode')
         setConnectionMode('demo')
       }

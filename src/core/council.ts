@@ -1,4 +1,4 @@
-import { loadLLMModel, runCompletion, unloadQVACModel, LLAMA_MODEL_ID } from "./qvac.js";
+import { loadLLMModel, runCompletion, LLAMA_MODEL_ID } from "./qvac.js";
 import { searchMedicalKnowledge } from "./rag.js"; // Reuse ragSearch helper
 
 export interface CitationRef {

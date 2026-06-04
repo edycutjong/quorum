@@ -56,6 +56,15 @@ export async function ingestCorpus(
   }
 }
 
+interface RawRagResult {
+  id?: string;
+  content?: string;
+  text?: string;
+  source?: string;
+  score?: number;
+  metadata?: Record<string, unknown>;
+}
+
 // ── Search Corpus ────────────────────────────────────────────────────────────
 
 /**
@@ -75,11 +84,11 @@ export async function searchCorpus(
       topK,
     });
 
-    return (results as unknown as any[]).map((r: any, i: number) => {
+    return (results as unknown as RawRagResult[]).map((r, i: number) => {
       const rawContent = r.content ?? r.text ?? "";
       // Extract source from [Source: filename.txt] prefix embedded during ingestion
       const sourceMatch = rawContent.match(/\[Source:\s*([^\]]+)\]/);
-      const source = r.source ?? r.metadata?.source ?? sourceMatch?.[1]?.trim() ?? "corpus_document";
+      const source = r.source ?? (r.metadata?.source as string | undefined) ?? sourceMatch?.[1]?.trim() ?? "corpus_document";
       // Strip the [Source: ...] prefix from content for cleaner display
       const content = sourceMatch ? rawContent.replace(/\[Source:\s*[^\]]+\]\s*/, "").trim() : rawContent;
 

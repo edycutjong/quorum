@@ -48,16 +48,17 @@ app.post("/api/council", async (req, res) => {
       finalAnswer: result.verdict,
       contradictions: detectContradictions(result),
     });
-  } catch (err: any) {
-    console.error("[council] Error:", err.message);
-    const isOverflow = err.message?.includes("CONTEXT_OVERFLOW") || err.message?.includes("context overflow");
+  } catch (err) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    console.error("[council] Error:", errMessage);
+    const isOverflow = errMessage.includes("CONTEXT_OVERFLOW") || errMessage.includes("context overflow");
     if (isOverflow) {
       res.status(422).json({
         error: "Query too complex for the model's context window. Try a shorter, more specific question.",
         code: "CONTEXT_OVERFLOW",
       });
     } else {
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: errMessage });
     }
   }
 });
@@ -111,9 +112,10 @@ app.post("/api/council/stream", async (req, res) => {
       contradictions: detectContradictions(result),
       elapsed_ms: elapsed,
     });
-  } catch (err: any) {
-    console.error("[council/stream] Error:", err.message);
-    sendEvent("error", { error: err.message });
+  } catch (err) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    console.error("[council/stream] Error:", errMessage);
+    sendEvent("error", { error: errMessage });
   } finally {
     res.end();
   }
@@ -139,9 +141,10 @@ app.post("/api/seed", async (_req, res) => {
       documents: files.length,
       files,
     });
-  } catch (err: any) {
-    console.error("[seed] Error:", err.message);
-    res.status(500).json({ error: err.message });
+  } catch (err) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    console.error("[seed] Error:", errMessage);
+    res.status(500).json({ error: errMessage });
   }
 });
 
