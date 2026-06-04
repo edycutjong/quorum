@@ -75,13 +75,22 @@ export async function searchCorpus(
       topK,
     });
 
-    return (results as Record<string, unknown>[]).map((r: Record<string, unknown>, i: number) => ({
-      id: r.id ?? `result-${i}`,
-      content: r.content ?? r.text ?? "",
-      source: r.source ?? r.metadata?.source ?? "unknown_source",
-      score: r.score,
-      metadata: r.metadata,
-    }));
+    return (results as unknown as any[]).map((r: any, i: number) => {
+      const rawContent = r.content ?? r.text ?? "";
+      // Extract source from [Source: filename.txt] prefix embedded during ingestion
+      const sourceMatch = rawContent.match(/\[Source:\s*([^\]]+)\]/);
+      const source = r.source ?? r.metadata?.source ?? sourceMatch?.[1]?.trim() ?? "corpus_document";
+      // Strip the [Source: ...] prefix from content for cleaner display
+      const content = sourceMatch ? rawContent.replace(/\[Source:\s*[^\]]+\]\s*/, "").trim() : rawContent;
+
+      return {
+        id: r.id ?? `result-${i}`,
+        content,
+        source,
+        score: r.score,
+        metadata: r.metadata,
+      };
+    });
   } catch (err) {
     console.warn(
       "[rag] RAG search failed or corpus not initialized, returning seed fallback:",

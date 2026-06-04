@@ -117,7 +117,7 @@ describe("Quorum Core Module", () => {
 
       expect(res[1].id).toBe("result-1");
       expect(res[1].content).toBe("");
-      expect(res[1].source).toBe("unknown_source");
+      expect(res[1].source).toBe("corpus_document");
     });
 
     it("should return fallback data on RAG search failure", async () => {

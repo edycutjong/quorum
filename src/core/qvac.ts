@@ -63,10 +63,10 @@ export interface P2PDelegateParams {
 
 // ── Model Loaders ──────────────────────────────────────────────────────────
 
-export async function loadLLMModel(modelSrc: string | { src: string } = LLAMA_MODEL_ID, delegateParams?: P2PDelegateParams) {
+export async function loadLLMModel(modelSrc: any = LLAMA_MODEL_ID, delegateParams?: P2PDelegateParams) {
   try {
     const src = typeof modelSrc === "string" ? modelSrc : modelSrc.src;
-    const params: Record<string, unknown> = {
+    const params: any = {
       modelSrc: src,
       modelType: "llm",
     };
@@ -88,13 +88,13 @@ export async function loadLLMModel(modelSrc: string | { src: string } = LLAMA_MO
   }
 }
 
-export async function loadEmbeddingModel(modelSrc: string | { src: string } = EMBEDDING_MODEL_ID) {
+export async function loadEmbeddingModel(modelSrc: any = EMBEDDING_MODEL_ID) {
   try {
     const src = typeof modelSrc === "string" ? modelSrc : modelSrc.src;
     const modelId = await loadModel({
       modelSrc: src,
       modelType: "embeddings",
-    } as Record<string, unknown>);
+    } as any);
     return modelId;
   } catch (error) {
     console.error("Failed to load Embedding model:", error);
@@ -102,7 +102,7 @@ export async function loadEmbeddingModel(modelSrc: string | { src: string } = EM
   }
 }
 
-export async function loadTTSModel() {
+export async function loadTTSModel(_eSpeakDataPath: string = "./espeak-data") {
   try {
     const modelId = await loadModel({
       modelSrc: TTS_EN_SUPERTONIC_Q8_0.src,
@@ -110,7 +110,7 @@ export async function loadTTSModel() {
       modelConfig: {
         language: "en",
       },
-    } as Record<string, unknown>);
+    } as any);
     return modelId;
   } catch (error) {
     console.error("Failed to load TTS model:", error);
@@ -130,7 +130,7 @@ export async function unloadQVACModel(modelId: string) {
 
 export async function runCompletion(params: CompletionParams): Promise<{ text: string; tokenStream?: AsyncGenerator<string> }> {
   try {
-    const completionParams: Record<string, unknown> = {
+    const completionParams: any = {
       modelId: params.modelId,
       history: params.history,
       stream: params.stream ?? false,
@@ -142,13 +142,13 @@ export async function runCompletion(params: CompletionParams): Promise<{ text: s
     }
 
     if (params.stream) {
-      const result = completion({ ...completionParams, stream: true });
+      const result = completion({ ...completionParams, stream: true } as any);
       return {
         text: "",
         tokenStream: result.tokenStream,
       };
     } else {
-      const result = await completion({ ...completionParams, stream: false });
+      const result = await completion({ ...completionParams, stream: false } as any);
       const text = await result.text;
       return { text };
     }
@@ -166,7 +166,7 @@ export async function runSaveEmbeddings(params: EmbedParams) {
       modelId: params.modelId,
       documents: params.documents,
       chunk: params.chunk ?? false,
-    } as Record<string, unknown>);
+    } as any);
     return response;
   } catch (error) {
     console.error("RAG embedding save failed:", error);
@@ -192,7 +192,7 @@ export async function runRagSearch(params: RagSearchParams) {
 
 export async function runTextToSpeech(params: TTSParams) {
   try {
-    const ttsModelId = await loadTTSModel(params.eSpeakDataPath);
+    const ttsModelId = await loadTTSModel(params.eSpeakDataPath ?? "./espeak-data");
     const result = textToSpeech({
       modelId: ttsModelId,
       text: params.text,
@@ -220,7 +220,7 @@ export async function startP2PProvider(params: P2PProviderParams) {
     const response = await startQVACProvider({
       topic: params.topic,
       firewall,
-    } as Record<string, unknown>);
+    } as any);
 
     return response; // returns { success: boolean, publicKey?: string }
   } catch (error) {
