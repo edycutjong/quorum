@@ -31,6 +31,60 @@ function truncate(text: string, maxChars: number): string {
 const RAG_DOC_LIMIT = 400;    // Max chars per RAG document chunk
 const AGENT_OUTPUT_LIMIT = 600; // Max chars when embedding agent output in next prompt
 
+// Skeptic phrasing that signals an irreconcilable conflict → low confidence.
+const IRRECONCILABLE_SIGNALS = [
+  "irreconcilable",
+  "directly contradict",
+  "cannot be reconciled",
+  "fraud",
+  "fabricat",   // fabricated / fabrication
+  "falsif",     // falsified / falsification
+  "impossible",
+];
+
+// Skeptic phrasing that signals an objection worth flagging → medium confidence.
+const OBJECTION_SIGNALS = [
+  "contradict",
+  "wrong",
+  "missed",
+  "inconsistent",
+  "discrepancy",
+  "unsupported",
+  "uncited",
+];
+
+/**
+ * Extract a confidence level the Synthesizer explicitly declared.
+ * The Synthesizer is prompted to state "high / medium / low", so when it does,
+ * that verdict is authoritative. Returns null when no level is stated.
+ */
+function parseDeclaredConfidence(text: string): "high" | "medium" | "low" | null {
+  const t = text.toLowerCase();
+  const match =
+    t.match(/confidence[:\s*-]+\**(high|medium|low)/) ??
+    t.match(/\b(high|medium|low)[\s*-]*confidence/);
+  return (match?.[1] as "high" | "medium" | "low" | undefined) ?? null;
+}
+
+/**
+ * Derive the council's confidence from the debate.
+ * The Synthesizer is the arbiter: if it declares a level, we honor it.
+ * Otherwise we infer from the strength of the Skeptic's challenge —
+ * irreconcilable conflicts are "low", lesser objections "medium", none "high".
+ */
+export function deriveConfidence(
+  skepticText: string,
+  synthesizerText: string
+): "high" | "medium" | "low" {
+  const declared = parseDeclaredConfidence(synthesizerText);
+  if (declared) return declared;
+
+  const s = skepticText.toLowerCase();
+  if (IRRECONCILABLE_SIGNALS.some((k) => s.includes(k))) return "low";
+  if (OBJECTION_SIGNALS.some((k) => s.includes(k))) return "medium";
+  return "high";
+}
+
 /**
  * Callback invoked as each agent turn completes.
  * Enables progressive streaming to the frontend.
@@ -47,7 +101,7 @@ export async function runQuorumCouncil(
   const allCitations: string[] = [];
 
   // Phase 1: Researcher Turn (broad retrieval and initial hypothesis)
-  const researchDocs = await searchMedicalKnowledge(cleanQuery, 2);
+  const researchDocs = await searchMedicalKnowledge(cleanQuery, 3);
   researchDocs.forEach(d => allCitations.push(d.source));
 
   const researcherContext = researchDocs.map((d, i) => `[Doc ${i + 1}]: ${truncate(d.content, RAG_DOC_LIMIT)}`).join("\n");
@@ -70,8 +124,14 @@ Cite documents as [Doc X]. Do not speculate.`;
   turns.push(researcherTurn);
   onTurn?.(researcherTurn, "researcher");
 
-  // Phase 2: Skeptic Turn (actively looks for gaps, contradictions, or missed information)
-  const skepticDocs = await searchMedicalKnowledge(`contradictions exceptions warnings: ${cleanQuery}`, 2);
+  // Phase 2: Skeptic Turn (actively looks for gaps, contradictions, or missed information).
+  // Widen retrieval and target the records that most often contradict a claim
+  // (availability/leave/attendance, approvals, exceptions) so cross-document
+  // conflicts — e.g. an authorizer who was actually on leave — surface.
+  const skepticDocs = await searchMedicalKnowledge(
+    `contradictions, exceptions, warnings, availability, leave, attendance, approval and authorization records: ${cleanQuery}`,
+    4
+  );
   skepticDocs.forEach(d => allCitations.push(d.source));
 
   const skepticContext = skepticDocs.map((d, i) => `[Doc ${i + 1}]: ${truncate(d.content, RAG_DOC_LIMIT)}`).join("\n");
@@ -118,15 +178,13 @@ State confidence: high (agree), medium (some objections), or low (irreconcilable
   // Keep model loaded for fast subsequent queries (skip unload)
   // Model will be cleaned up when the server shuts down
 
-  // Determine consensus-based confidence
-  const lowerSkeptic = skepticResponse.text.toLowerCase();
-  const hasObjection = lowerSkeptic.includes("contradict") || lowerSkeptic.includes("wrong") || lowerSkeptic.includes("missed");
-  const confidence = hasObjection ? "medium" : "high";
+  // Determine consensus-based confidence (high / medium / low)
+  const confidence = deriveConfidence(skepticResponse.text, synthesizerResponse.text);
 
   return {
     turns,
     verdict: synthesizerResponse.text,
-    confidence: confidence as "high" | "medium",
+    confidence,
     citations: Array.from(new Set(allCitations))
   };
 }

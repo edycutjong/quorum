@@ -69,7 +69,7 @@ flowchart LR
 |---|---|---|
 | `loadModel()` + `completion()` | Runs all 3 agents (Researcher, Skeptic, Synthesizer) | OpenAI API ($0.03/query × 3 agents) |
 | `ragIngest()` + `ragSearch()` | Embeds & searches private dossier locally | Pinecone + OpenAI Embeddings API |
-| `loadModel(GTE_LARGE_FP16)` | 384-dim embeddings for citation matching | Cohere Embed API |
+| `loadModel(GTE_LARGE_FP16)` | 1024-dim embeddings for citation matching | Cohere Embed API |
 | `unloadModel()` | Memory lifecycle — load once, 3 agents, unload | N/A (cloud doesn't care) |
 
 **Take QVAC out and you'd need 3 separate cloud services** (OpenAI + Pinecone + Cohere), a network connection, and your confidential documents would leave your machine.
@@ -92,9 +92,13 @@ The demo includes a 5-document **Northwind dossier** with deliberate contradicti
 git clone https://github.com/edycutjong/quorum.git
 cd quorum
 npm install
-python3 scripts/seed.py
-npm run dev
+npm run start                              # backend (:3001) + web app (:5173)
+curl -X POST http://localhost:3001/api/seed   # ingest the dossier into the local RAG store
+# open http://localhost:5173 — status pill should read "LIVE · QVAC"
 ```
+
+> First launch downloads the local models. The status pill reads **DEMO · OFFLINE**
+> until the backend is reachable; once it's up and seeded it switches to **LIVE · QVAC**.
 
 > **Devastating Demo Query:** "Who authorized the Entity X payment and was it legitimate?"
 

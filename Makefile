@@ -16,10 +16,10 @@ test:
 	npm run test
 
 bench:
-	python3 scripts/bench.py
+	npm run bench
 
 bench-assert:
-	python3 scripts/bench.py --assert
+	npm run bench -- --assert
 
 verify:
 	python3 scripts/verify_offline.py
