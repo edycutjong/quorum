@@ -100,20 +100,24 @@ npm run dev
 
 ## 📊 Benchmarks
 
-Run `python3 scripts/bench.py` to reproduce. Results on MacBook Pro M2 (16GB RAM):
+Run `npm run bench` to reproduce. This runs the **real** 3-agent council over the
+dossier via `@qvac/sdk` and writes `data/bench_results.json` (latency, contradiction
+recall, citation coverage). Use `npm run bench -- --assert` to fail on budget regressions.
 
-| Metric | p50 | p95 | Budget |
-|---|---|---|---|
-| Full Council Round | ~170ms | ~180ms | <15,000ms |
-| RAG Search | ~15ms | ~16ms | <500ms |
-| Model Load | ~2,500ms | ~3,000ms | <10,000ms |
-| Peak RAM | ~1.2GB | — | <4,096MB |
+| Metric | Measured | Budget |
+|---|---|---|
+| Full Council Round (p50 / p95) | _run `npm run bench`_ | <15,000ms |
+| Model Load (cold) | _run `npm run bench`_ | <10,000ms |
+| Contradiction recall (planted set) | _run `npm run bench`_ | 1.0 |
+| Peak RAM | _run `npm run bench`_ | <4,096MB |
 
-> *Simulated timings — run `python3 scripts/bench.py` on your hardware for real @qvac/sdk measurements.*
+> Numbers are intentionally not hard-coded here — `npm run bench` records real
+> measurements from your hardware into `data/bench_results.json`. (The legacy
+> `scripts/bench.py` is a deterministic simulation kept only as a CI smoke test.)
 
 ## 🧪 Testing & CI
 
-**3 E2E suites + 7 offline verification checks = 10 test assertions.** Target: 100+ with unit tests.
+**136 tests:** 128 unit tests (Vitest) covering RAG citation mapping, agent orchestration, contradiction-driven confidence, and the offline SDK wrappers, plus 8 E2E specs (Playwright) — backed by 18 offline-verification checks (`verify_offline.py`).
 
 **7-stage pipeline:** Quality → Security → Build → E2E → Performance → Offline → Deploy
 
@@ -128,8 +132,8 @@ npm run e2e            # Playwright E2E (3 suites)
 npm run lighthouse     # Lighthouse CI audit
 
 # ── Evidence Bundle ─────────────────────────
-python3 scripts/verify_offline.py
-python3 scripts/bench.py
+python3 scripts/verify_offline.py     # airgapped run — disconnect network first
+npm run bench                         # real council latency + contradiction recall
 python3 scripts/check_submission_readiness.py
 ```
 
