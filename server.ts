@@ -2,11 +2,22 @@ import express from "express";
 import cors from "cors";
 import { runQuorumCouncil } from "./src/core/council.js";
 import { ingestCorpus, resetCorpus } from "./src/core/rag.js";
-import { readFileSync, readdirSync } from "fs";
-import { join } from "path";
+import { audit, setAuditWriter } from "./src/core/audit.js";
+import { readFileSync, readdirSync, appendFileSync, writeFileSync, mkdirSync } from "fs";
+import { join, dirname } from "path";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ── Structured audit log (model loads/unloads + inference perf) ───────────────
+// Enabled by default; disable with QUORUM_AUDIT=0. Truncated per server session.
+const AUDIT_LOG = process.env.QUORUM_AUDIT_LOG || "docs/audit-log.jsonl";
+if (process.env.QUORUM_AUDIT !== "0") {
+  mkdirSync(dirname(AUDIT_LOG), { recursive: true });
+  writeFileSync(AUDIT_LOG, "");
+  setAuditWriter((rec) => appendFileSync(AUDIT_LOG, JSON.stringify(rec) + "\n"));
+  console.log(`[audit] structured log → ${AUDIT_LOG}`);
+}
 
 app.use(cors({ origin: ["http://localhost:5173", "http://localhost:4173"] }));
 app.use(express.json());
@@ -26,11 +37,13 @@ app.post("/api/council", async (req, res) => {
 
   console.log(`[council] Query: "${query}"`);
   const start = Date.now();
+  audit({ event: "council_query", endpoint: "/api/council", query });
 
   try {
     const result = await runQuorumCouncil(query);
     const elapsed = Date.now() - start;
     console.log(`[council] Completed in ${elapsed}ms — confidence: ${result.confidence}`);
+    audit({ event: "council_result", confidence: result.confidence, citations: result.citations.length, elapsed_ms: elapsed });
 
     res.json({
       ...result,
@@ -87,6 +100,7 @@ app.post("/api/council/stream", async (req, res) => {
 
   console.log(`[council/stream] Query: "${query}"`);
   const start = Date.now();
+  audit({ event: "council_query", endpoint: "/api/council/stream", query });
 
   try {
     const result = await runQuorumCouncil(query, (turn) => {
@@ -104,6 +118,7 @@ app.post("/api/council/stream", async (req, res) => {
 
     const elapsed = Date.now() - start;
     console.log(`[council/stream] Completed in ${elapsed}ms — confidence: ${result.confidence}`);
+    audit({ event: "council_result", confidence: result.confidence, citations: result.citations.length, elapsed_ms: elapsed });
 
     // Send final result
     sendEvent("result", {

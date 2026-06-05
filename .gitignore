@@ -32,4 +32,5 @@ coverage/
 
 # Data (generated)
 data/seed_manifest.json
-data/bench_results.json
+# NOTE: data/bench_results.json is committed on purpose — it's submission evidence
+# (real on-device benchmark numbers). Re-generate with `npm run bench`.

@@ -1,10 +1,36 @@
+## 🧑‍⚖️ For Judges — Review in 5 Steps
+
+> Offline multi-agent document council on `@qvac/sdk`. **Zero cloud — verifiable.**
+
+1. **▶ Watch the 3-min demo** (network off on camera): https://youtu.be/tnVqrbXNMco
+2. **Run it locally** (first launch downloads models ~2 GB):
+   ```bash
+   npm install
+   npm run start          # backend :3001 + web app :5173  (keep running)
+   make seed              # 2nd terminal — ingest the dossier (curl -X POST :3001/api/seed)
+   # open http://localhost:5173  →  status pill reads "LIVE · QVAC"
+   ```
+3. **Ask the demo query:** *“Who authorized the Entity X payment and was it legitimate?”* → watch the **Researcher → Skeptic → Synthesizer** debate stream in. The Skeptic catches the planted contradiction (VP Chen "authorized" a payment while on PTO); the Synthesizer returns a **cited, disputed verdict with lowered confidence**.
+4. **Verify the claims:**
+   - 🔒 **No remote APIs** — zero cloud calls: [`docs/REMOTE_APIS.md`](docs/REMOTE_APIS.md)
+   - 📋 **Structured audit log** — model loads/unloads + per-inference TTFT / tokens / tokens-per-sec: [`docs/AUDIT_LOG.md`](docs/AUDIT_LOG.md) → real run in [`docs/audit-log.jsonl`](docs/audit-log.jsonl)
+   - `python3 scripts/verify_offline.py` — **0 outbound** (disconnect network first) · 18/18 checks
+   - `npm run bench` — real on-device latency + contradiction recall → [`data/bench_results.json`](data/bench_results.json) (p50 ≈ **2.1 s**, peak RAM ≈ **180 MB**, citation coverage **1.0**)
+   - `npm run ci` — **163 unit tests, 100% core coverage** + lint + typecheck
+5. **Why only QVAC / no remote APIs** ([`docs/REMOTE_APIS.md`](docs/REMOTE_APIS.md)): all inference is local (Llama 3.2 1B + GTE-Large via `@qvac/sdk`). See [Why ONLY QVAC?](#-why-only-qvac) — remove QVAC and you'd need a cloud LLM + hosted vector DB, and the confidentiality premise is gone.
+
+---
+
 <div align="center">
+  <img src="docs/icon.svg" alt="Quorum" width="120" height="120">
+
   <h1>Quorum 🏛️</h1>
   <p><em>Offline multi-agent document council — 3 AI agents debate your documents to a cited answer. The visible disagreement IS the trust mechanism.</em></p>
   <img src="docs/readme-hero.svg" alt="Quorum" width="100%">
 
   <br/>
 
+  [![Watch the Demo](https://img.shields.io/badge/Watch_Demo-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/tnVqrbXNMco)
   [![Built for QVAC Hackathon](https://img.shields.io/badge/DoraHacks-QVAC%20Edge%20AI-8b5cf6?style=for-the-badge)](https://dorahacks.io/hackathon/qvac-unleach-edge-ai-i/detail)
   [![Track](https://img.shields.io/badge/Track-General%20Purpose-06b6d4?style=for-the-badge)](https://dorahacks.io/hackathon/qvac-unleach-edge-ai-i/tracks)
 
@@ -117,8 +143,10 @@ The demo includes a 5-document **Northwind dossier** with deliberate contradicti
 git clone https://github.com/edycutjong/quorum.git
 cd quorum
 npm install
-npm run start                              # backend (:3001) + web app (:5173)
-curl -X POST http://localhost:3001/api/seed   # ingest the dossier into the local RAG store
+npm run start          # backend (:3001) + web app (:5173) — keep this running (make start)
+
+# then, in a SECOND terminal, ingest the dossier into the running backend:
+curl -X POST http://localhost:3001/api/seed        # or: make seed
 # open http://localhost:5173 — status pill should read "LIVE · QVAC"
 ```
 
@@ -152,7 +180,18 @@ Representative run on an **Apple M1 Max (32 GB)** — reproduce with `npm run be
 
 ## 🧪 Testing & CI
 
-**136 tests:** 128 unit tests (Vitest) covering RAG citation mapping, agent orchestration, contradiction-driven confidence, and the offline SDK wrappers, plus 8 E2E specs (Playwright) — backed by 18 offline-verification checks (`verify_offline.py`).
+**171 tests · 100% core coverage:** 163 unit tests (Vitest) covering RAG citation mapping & chunking, agent orchestration, contradiction-driven confidence, the audit log, and the offline SDK wrappers, plus 8 E2E specs (Playwright) — backed by 18 offline-verification checks (`verify_offline.py`).
+
+## 🔍 Verification & Compliance
+
+Everything the judges' verification asks for, as concrete artifacts:
+
+| Gate | Where | How to reproduce |
+|---|---|---|
+| **No remote APIs** — zero cloud calls | [`docs/REMOTE_APIS.md`](docs/REMOTE_APIS.md) | `python3 scripts/verify_offline.py` (scans for banned cloud SDKs; 18/18) |
+| **Structured audit log** — model loads/unloads + inference perf (prompt, tokens, TTFT, tokens/sec) | [`docs/AUDIT_LOG.md`](docs/AUDIT_LOG.md) → [`docs/audit-log.jsonl`](docs/audit-log.jsonl) | on by default; `npm run start` + a query writes it |
+| **Offline proof** — 0 outbound connections | `scripts/verify_offline.py` | disconnect network, then run |
+| **Real on-device benchmarks** — latency, recall, RAM | [`data/bench_results.json`](data/bench_results.json) | `npm run bench` |
 
 **7-stage pipeline:** Quality → Security → Build → E2E → Performance → Offline → Deploy
 
@@ -180,7 +219,7 @@ python3 scripts/check_submission_readiness.py
 | Security (SCA) | Dependabot + npm audit | ✅ |
 | Secret Scanning | TruffleHog | ✅ |
 | Performance | Lighthouse CI | ✅ |
-| Offline Verification | verify_offline.py (7/7) | ✅ |
+| Offline Verification | verify_offline.py (18/18) | ✅ |
 
 ## 📁 Project Structure
 ```

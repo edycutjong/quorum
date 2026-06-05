@@ -126,7 +126,8 @@ Cite documents as [Doc X]. Do not speculate.`;
   const researcherResponse = await runCompletion({
     modelId,
     history: [{ role: "user", content: researcherPrompt }],
-    stream: false
+    stream: false,
+    label: "researcher"
   });
 
   const researcherTurn: AgentTurn = {
@@ -156,7 +157,8 @@ Find contradictions, gaps, or errors. What did the Researcher miss?`;
   const skepticResponse = await runCompletion({
     modelId,
     history: [{ role: "user", content: skepticPrompt }],
-    stream: false
+    stream: false,
+    label: "skeptic"
   });
 
   const skepticTurn: AgentTurn = {
@@ -177,7 +179,8 @@ State confidence: high (agree), medium (some objections), or low (irreconcilable
   const synthesizerResponse = await runCompletion({
     modelId,
     history: [{ role: "user", content: synthesizerPrompt }],
-    stream: false
+    stream: false,
+    label: "synthesizer"
   });
 
   const synthesizerTurn: AgentTurn = {

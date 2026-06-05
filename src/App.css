@@ -275,6 +275,90 @@ body::after {
   color: var(--text-low);
   font-size: var(--text-sm);
 }
+/* Suggestion popover — one-click example queries */
+.suggest-popover-wrap {
+  position: relative;
+  display: flex;
+}
+/* trigger uses .history-toggle-btn for its look; this only adds layout + chevron */
+.suggest-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+.suggestions-chevron {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--text-low);
+  transition: transform .2s ease;
+}
+.suggestions-chevron.open { transform: rotate(180deg); }
+
+.suggest-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 50;
+  min-width: 340px;
+  max-width: min(440px, 92vw);
+  max-height: min(56vh, 460px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--bg-base) 92%, transparent);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-12);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  animation: suggest-pop .13s ease;
+}
+.suggest-group-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-low);
+  padding: 8px 12px 4px;
+}
+.suggest-group + .suggest-group {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+@keyframes suggest-pop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+  background: none;
+  border: none;
+  border-radius: var(--radius-8);
+  cursor: pointer;
+  transition: color .12s ease, background .12s ease;
+}
+.suggest-item:hover:not(:disabled) {
+  color: var(--text-hi);
+  background: var(--color-hover);
+}
+.suggest-item:disabled { opacity: 0.45; cursor: not-allowed; }
+.suggest-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
 .query-actions {
   display: flex;
   gap: var(--spacing-12);

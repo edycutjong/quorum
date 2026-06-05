@@ -14,6 +14,7 @@ import {
   GTE_LARGE_FP16,
   TTS_EN_SUPERTONIC_Q8_0,
 } from "@qvac/sdk";
+import { audit } from "./audit.js";
 
 // Define custom constants or fallbacks
 export const MEDPSY_MODEL_ID = "MedPsy-1.7B"; // Default name for MedPsy-1.7B
@@ -31,6 +32,7 @@ export interface CompletionParams {
   history: CompletionMessage[];
   stream?: boolean;
   images?: Uint8Array[];
+  label?: string; // audit label, e.g. agent role
 }
 
 export interface EmbedParams {
@@ -83,7 +85,9 @@ export async function loadLLMModel(modelSrc: any = LLAMA_MODEL_ID, delegateParam
       };
     }
 
+    const t0 = Date.now();
     const modelId = await loadModel(params);
+    audit({ event: "model_load", model: "llm", modelType: "llm", modelId, ms: Date.now() - t0 });
     return modelId;
   } catch (error) {
     console.error("Failed to load LLM model:", error);
@@ -94,10 +98,12 @@ export async function loadLLMModel(modelSrc: any = LLAMA_MODEL_ID, delegateParam
 export async function loadEmbeddingModel(modelSrc: any = EMBEDDING_MODEL_ID) {
   try {
     const src = typeof modelSrc === "string" ? modelSrc : modelSrc.src;
+    const t0 = Date.now();
     const modelId = await loadModel({
       modelSrc: src,
       modelType: "embeddings",
     } as any);
+    audit({ event: "model_load", model: "embeddings", modelType: "embeddings", modelId, ms: Date.now() - t0 });
     return modelId;
   } catch (error) {
     console.error("Failed to load Embedding model:", error);
@@ -124,6 +130,7 @@ export async function loadTTSModel(_eSpeakDataPath: string = "./espeak-data") {
 export async function unloadQVACModel(modelId: string) {
   try {
     await unloadModel({ modelId });
+    audit({ event: "model_unload", modelId });
   } catch (error) {
     console.error(`Failed to unload model ${modelId}:`, error);
   }
@@ -151,8 +158,27 @@ export async function runCompletion(params: CompletionParams): Promise<{ text: s
         tokenStream: result.tokenStream,
       };
     } else {
+      const t0 = Date.now();
       const result = await completion({ ...completionParams, stream: false } as any);
       const text = await result.text;
+      // Capture per-inference performance stats from the SDK for the audit log.
+      let stats: any;
+      try { stats = await result.stats; } catch { stats = undefined; }
+      const prompt = params.history.map((h) => h.content).join("\n");
+      audit({
+        event: "inference",
+        label: params.label,
+        modelId: params.modelId,
+        promptChars: prompt.length,
+        promptPreview: prompt.slice(0, 160),
+        durationMs: Date.now() - t0,
+        timeToFirstTokenMs: stats?.timeToFirstToken,
+        tokensPerSecond: stats?.tokensPerSecond,
+        promptTokens: stats?.promptTokens,
+        generatedTokens: stats?.generatedTokens,
+        cacheTokens: stats?.cacheTokens,
+        backendDevice: stats?.backendDevice,
+      });
       return { text };
     }
   } catch (error) {

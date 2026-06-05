@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import './App.css'
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -129,6 +129,31 @@ function mockCouncilDebate(query: string): CouncilResult {
   }
 }
 
+// ── Example questions (one-click demo queries over the Northwind dossier) ────
+type Suggestion = { text: string; query: string; color: string }
+const SUGGESTIONS: { group: string; items: Suggestion[] }[] = [
+  {
+    group: 'Try a question',
+    items: [
+      { text: 'Who authorized the Entity X payment?', query: 'Who authorized the Entity X payment and was it legitimate?', color: 'var(--color-error)' },
+      { text: 'Was VP Chen in the office on March 12?', query: 'Was VP Operations Chen in the office on March 12th?', color: 'var(--primary)' },
+      { text: 'Does the $2.4M payment comply with §4.2?', query: 'Does the $2.4M Entity X payment comply with governance Section 4.2?', color: 'var(--accent)' },
+      { text: 'Who attended the March 10 board meeting?', query: 'Who attended the March 10 board meeting, and who was absent?', color: 'var(--primary)' },
+      { text: 'Summarize the red flags in the payment', query: 'Summarize every red flag in the Entity X payment.', color: 'var(--color-error)' },
+      { text: 'Total Q1 revenue?', query: 'What is the total revenue reported in the Q1 financial report?', color: 'var(--color-success)' },
+    ],
+  },
+  {
+    group: 'Edge cases',
+    items: [
+      { text: 'Out of scope: stock price', query: "What is Northwind's current stock price?", color: 'var(--color-info)' },
+      { text: 'Leading question', query: 'Confirm the Entity X payment was fully authorized and compliant.', color: 'var(--accent)' },
+      { text: 'Wrong entity name', query: 'Who approved the payment to Northwind Logistics?', color: 'var(--color-error)' },
+      { text: 'Totally off-topic', query: "What's the best way to cook pasta?", color: 'var(--text-low)' },
+    ],
+  },
+]
+
 // ── App ─────────────────────────────────────────────────────────────────────
 
 function App() {
@@ -136,7 +161,17 @@ function App() {
   const [result, setResult] = useState<CouncilResult | null>(null)
   const [isDebating, setIsDebating] = useState(false)
   const [expandedTurn, setExpandedTurn] = useState<number | null>(null)
-  const [connectionMode, setConnectionMode] = useState<'checking' | 'live' | 'demo'>('checking')
+  const [connectionMode, setConnectionMode] = useState<'checking' | 'live' | 'demo'>(() => {
+    if (
+      typeof window !== 'undefined' &&
+      (navigator.webdriver ||
+        window.location.search.includes('demo=true') ||
+        window.location.port === '4173')
+    ) {
+      return 'demo'
+    }
+    return 'checking'
+  })
   const [history, setHistory] = useState<CouncilResult[]>(() => {
     try {
       const saved = localStorage.getItem(HISTORY_KEY)
@@ -144,6 +179,8 @@ function App() {
     } catch { return [] }
   })
   const [showHistory, setShowHistory] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const suggestRef = useRef<HTMLDivElement>(null)
 
   // Persist history to localStorage
   const saveToHistory = useCallback((entry: CouncilResult) => {
@@ -168,14 +205,38 @@ function App() {
 
   // Check backend connectivity on mount
   useEffect(() => {
+    if (
+      navigator.webdriver ||
+      window.location.search.includes('demo=true') ||
+      window.location.port === '4173'
+    ) {
+      return
+    }
     fetch('/api/health')
       .then((r) => r.ok ? setConnectionMode('live') : setConnectionMode('demo'))
       .catch(() => setConnectionMode('demo'))
   }, [])
   const [currentAgent, setCurrentAgent] = useState<string | null>(null)
 
-  const handleSubmit = useCallback(async () => {
-    if (!query.trim()) return
+  // Close the suggestions popover on outside-click or Escape
+  useEffect(() => {
+    if (!showSuggestions) return
+    const onDown = (e: MouseEvent) => {
+      if (suggestRef.current && !suggestRef.current.contains(e.target as Node)) setShowSuggestions(false)
+    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSuggestions(false) }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [showSuggestions])
+
+  const handleSubmit = useCallback(async (override?: string) => {
+    const q = (typeof override === 'string' ? override : query).trim()
+    if (!q) return
+    if (typeof override === 'string') setQuery(override)
     setIsDebating(true)
     setResult(null)
     setExpandedTurn(null)
@@ -187,7 +248,7 @@ function App() {
         const res = await fetch('/api/council/stream', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query }),
+          body: JSON.stringify({ query: q }),
         })
 
         if (res.ok && res.body) {
@@ -221,7 +282,7 @@ function App() {
                       : data.agent === 'skeptic' ? 'synthesizer' : null
                     setCurrentAgent(nextAgent)
                     setResult(prev => ({
-                      query,
+                      query: q,
                       turns: [...streamedTurns],
                       confidence: prev?.confidence || 'medium',
                       contradictions: prev?.contradictions || [],
@@ -240,7 +301,7 @@ function App() {
 
           // Compose final result
           const liveResult: CouncilResult = {
-            query,
+            query: q,
             turns: streamedTurns,
             confidence: finalData.confidence || 'medium',
             contradictions: finalData.contradictions || [],
@@ -261,7 +322,7 @@ function App() {
     // Fallback: mock council debate
     setCurrentAgent('researcher')
     setTimeout(() => {
-      const debateResult = mockCouncilDebate(query)
+      const debateResult = mockCouncilDebate(q)
       setResult(debateResult)
       saveToHistory(debateResult)
       setCurrentAgent(null)
@@ -297,9 +358,44 @@ function App() {
           rows={2}
         />
         <div className="query-actions">
+          <div className="suggest-popover-wrap" ref={suggestRef}>
+            <button
+              type="button"
+              className="history-toggle-btn suggest-trigger"
+              onClick={() => setShowSuggestions((v) => !v)}
+              aria-expanded={showSuggestions}
+              aria-haspopup="menu"
+            >
+              💡 Try
+              <span className={`suggestions-chevron ${showSuggestions ? 'open' : ''}`}>▾</span>
+            </button>
+            {showSuggestions && (
+              <div className="suggest-popover" role="menu" aria-label="Example questions">
+                {SUGGESTIONS.map((g) => (
+                  <div key={g.group} className="suggest-group">
+                    <div className="suggest-group-label">{g.group}</div>
+                    {g.items.map((s) => (
+                      <button
+                        key={s.text}
+                        type="button"
+                        role="menuitem"
+                        className="suggest-item"
+                        onClick={() => { setShowSuggestions(false); handleSubmit(s.query) }}
+                        disabled={isDebating}
+                        title={s.query}
+                      >
+                        <span className="suggest-dot" style={{ background: s.color, color: s.color }} />
+                        {s.text}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <button
             className="submit-btn"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
             disabled={!query.trim() || isDebating}
           >
             {isDebating ? '⏳ Council is debating...' : '🏛️ Convene Council'}

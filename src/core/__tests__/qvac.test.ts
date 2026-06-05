@@ -41,6 +41,7 @@ import {
   LLAMA_MODEL_ID,
   EMBEDDING_MODEL_ID,
 } from "../qvac";
+import { setAuditWriter } from "../audit";
 
 describe("qvac.ts — SDK wrappers", () => {
   beforeEach(() => {
@@ -226,6 +227,43 @@ describe("qvac.ts — SDK wrappers", () => {
     it("propagates completion failures", async () => {
       mockCompletion.mockRejectedValue(new Error("Inference failed"));
       await expect(runCompletion({ modelId: "m", history: [] })).rejects.toThrow("Inference failed");
+    });
+
+    it("audits inference performance stats (TTFT, tokens/sec, tokens)", async () => {
+      const records: Array<Record<string, unknown>> = [];
+      setAuditWriter((r) => records.push(r));
+      mockCompletion.mockResolvedValue({
+        text: Promise.resolve("answer"),
+        stats: Promise.resolve({
+          timeToFirstToken: 42,
+          tokensPerSecond: 55.5,
+          promptTokens: 120,
+          generatedTokens: 64,
+          backendDevice: "cpu",
+        }),
+      });
+      await runCompletion({ modelId: "m", history: [{ role: "user", content: "hello there" }], label: "skeptic" });
+      setAuditWriter(null);
+      const rec = records.find((r) => r.event === "inference")!;
+      expect(rec).toMatchObject({
+        event: "inference",
+        label: "skeptic",
+        timeToFirstTokenMs: 42,
+        tokensPerSecond: 55.5,
+        promptTokens: 120,
+        generatedTokens: 64,
+        backendDevice: "cpu",
+        promptChars: "hello there".length,
+      });
+    });
+
+    it("tolerates missing/rejected stats without failing the inference", async () => {
+      mockCompletion.mockResolvedValue({
+        text: Promise.resolve("ok"),
+        stats: Promise.reject(new Error("no stats")),
+      });
+      const res = await runCompletion({ modelId: "m", history: [] });
+      expect(res.text).toBe("ok");
     });
   });
 
