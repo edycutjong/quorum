@@ -26,9 +26,15 @@
       <stop offset="100%" stop-color="#0e7490" stop-opacity="0.7"/>
     </linearGradient>
     <linearGradient id="center-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4"/>
-      <stop offset="50%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#22c55e"/>
+      <stop offset="0%" stop-color="#06b6d4">
+        <animate attributeName="stop-color" values="#06b6d4;#f59e0b;#06b6d4" dur="4s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="50%" stop-color="#f59e0b">
+        <animate attributeName="stop-color" values="#f59e0b;#22c55e;#f59e0b" dur="4s" repeatCount="indefinite" />
+      </stop>
+      <stop offset="100%" stop-color="#22c55e">
+        <animate attributeName="stop-color" values="#22c55e;#06b6d4;#22c55e" dur="4s" repeatCount="indefinite" />
+      </stop>
     </linearGradient>
 
     <!-- Glow filters -->
@@ -45,7 +51,13 @@
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <filter id="glow-center" x="-100%" y="-100%" width="300%" height="300%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur">
+         <animate attributeName="stdDeviation" values="12;18;12" dur="2s" repeatCount="indefinite" />
+      </feGaussianBlur>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-bullet" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
@@ -56,8 +68,9 @@
   <!-- Background -->
   <rect width="512" height="512" rx="108" fill="url(#bg-grad)"/>
 
-  <!-- Subtle grid pattern -->
+  <!-- Subtle grid pattern (kept unscaled so it matches canvas) -->
   <g opacity="0.04">
+    <animate attributeName="opacity" values="0.02;0.08;0.02" dur="6s" repeatCount="indefinite" />
     <line x1="128" y1="0" x2="128" y2="512" stroke="#06b6d4" stroke-width="1"/>
     <line x1="256" y1="0" x2="256" y2="512" stroke="#06b6d4" stroke-width="1"/>
     <line x1="384" y1="0" x2="384" y2="512" stroke="#06b6d4" stroke-width="1"/>
@@ -66,71 +79,141 @@
     <line x1="0" y1="384" x2="512" y2="384" stroke="#06b6d4" stroke-width="1"/>
   </g>
 
-  <!-- Ambient glow behind temple -->
-  <ellipse cx="256" cy="280" rx="120" ry="100" fill="#06b6d4" opacity="0.04"/>
-
-  <!-- === Temple Structure === -->
-  <g filter="url(#shadow)">
-    <!-- Base / Platform -->
-    <rect x="118" y="370" width="276" height="14" rx="3" fill="#1e293b" opacity="0.8"/>
-    <rect x="130" y="358" width="252" height="14" rx="3" fill="#334155" opacity="0.6"/>
-
-    <!-- Three Pillars -->
-    <rect x="162" y="210" width="22" height="150" rx="4" fill="url(#pillar-grad)"/>
-    <rect x="245" y="210" width="22" height="150" rx="4" fill="url(#pillar-grad)"/>
-    <rect x="328" y="210" width="22" height="150" rx="4" fill="url(#pillar-grad)"/>
-
-    <!-- Pillar capitals (top detail) -->
-    <rect x="156" y="204" width="34" height="10" rx="3" fill="#64748b" opacity="0.5"/>
-    <rect x="239" y="204" width="34" height="10" rx="3" fill="#64748b" opacity="0.5"/>
-    <rect x="322" y="204" width="34" height="10" rx="3" fill="#64748b" opacity="0.5"/>
-
-    <!-- Roof / Pediment (triangle) -->
-    <polygon points="256,130 136,204 376,204" fill="url(#roof-grad)" opacity="0.85"/>
-    <polygon points="256,148 160,204 352,204" fill="#0a0e1a" opacity="0.3"/>
-
-    <!-- Roof top accent line -->
-    <line x1="136" y1="204" x2="376" y2="204" stroke="#06b6d4" stroke-width="2" opacity="0.5"/>
+  <!-- Corner accents (kept unscaled so they frame the edges) -->
+  <g opacity="0.25">
+    <animate attributeName="opacity" values="0.1;0.6;0.1" dur="3s" repeatCount="indefinite" />
+    <path d="M40,52 L40,40 L52,40" fill="none" stroke="#06b6d4" stroke-width="2"/>
+    <path d="M472,52 L472,40 L460,40" fill="none" stroke="#06b6d4" stroke-width="2"/>
+    <path d="M40,460 L40,472 L52,472" fill="none" stroke="#06b6d4" stroke-width="2"/>
+    <path d="M472,460 L472,472 L460,472" fill="none" stroke="#06b6d4" stroke-width="2"/>
   </g>
 
-  <!-- === Three Agent Orbs === -->
+  <!-- Main Illustration Group - Scaled 1.12x and centered (256 - 256*1.12 = -30.72) -->
+  <g transform="translate(-30.72, -30.72) scale(1.12)">
+    
+    <!-- Ambient glow behind temple -->
+    <ellipse cx="256" cy="280" rx="120" ry="100" fill="#06b6d4" opacity="0.04">
+      <animate attributeName="opacity" values="0.03;0.12;0.03" dur="5s" repeatCount="indefinite" />
+      <animate attributeName="rx" values="120;140;120" dur="5s" repeatCount="indefinite" />
+      <animate attributeName="ry" values="100;120;100" dur="5s" repeatCount="indefinite" />
+    </ellipse>
 
-  <!-- Researcher orb (Cyan - left) -->
-  <g filter="url(#glow-cyan)">
-    <circle cx="173" cy="308" r="16" fill="none" stroke="url(#cyan-grad)" stroke-width="3"/>
-    <circle cx="173" cy="308" r="6" fill="#06b6d4" opacity="0.8"/>
+    <!-- Spinning cyber rings behind the central node -->
+    <circle cx="256" cy="172" r="34" fill="none" stroke="#06b6d4" stroke-width="1" stroke-dasharray="10 6 2 6" opacity="0.4">
+      <animateTransform attributeName="transform" type="rotate" from="0 256 172" to="360 256 172" dur="10s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="256" cy="172" r="42" fill="none" stroke="#f59e0b" stroke-width="0.5" stroke-dasharray="2 4 8 4" opacity="0.3">
+      <animateTransform attributeName="transform" type="rotate" from="360 256 172" to="0 256 172" dur="15s" repeatCount="indefinite" />
+    </circle>
+
+    <!-- === Temple Structure === -->
+    <g filter="url(#shadow)">
+      <!-- Base / Platform -->
+      <rect x="118" y="370" width="276" height="14" rx="3" fill="#1e293b" opacity="0.8"/>
+      <rect x="130" y="358" width="252" height="14" rx="3" fill="#334155" opacity="0.6"/>
+
+      <!-- Three Pillars -->
+      <rect x="162" y="210" width="22" height="150" rx="4" fill="url(#pillar-grad)"/>
+      <rect x="245" y="210" width="22" height="150" rx="4" fill="url(#pillar-grad)"/>
+      <rect x="328" y="210" width="22" height="150" rx="4" fill="url(#pillar-grad)"/>
+
+      <!-- Pillar capitals (top detail) -->
+      <rect x="156" y="204" width="34" height="10" rx="3" fill="#64748b" opacity="0.5"/>
+      <rect x="239" y="204" width="34" height="10" rx="3" fill="#64748b" opacity="0.5"/>
+      <rect x="322" y="204" width="34" height="10" rx="3" fill="#64748b" opacity="0.5"/>
+
+      <!-- Roof / Pediment (triangle) -->
+      <polygon points="256,130 136,204 376,204" fill="url(#roof-grad)" opacity="0.85">
+        <animate attributeName="opacity" values="0.75;0.95;0.75" dur="4s" repeatCount="indefinite" />
+      </polygon>
+      <polygon points="256,148 160,204 352,204" fill="#0a0e1a" opacity="0.3"/>
+
+      <!-- Roof top accent line -->
+      <line x1="136" y1="204" x2="376" y2="204" stroke="#06b6d4" stroke-width="2" opacity="0.5">
+        <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite" />
+      </line>
+    </g>
+
+    <!-- === Three Agent Orbs === -->
+
+    <!-- Researcher orb (Cyan - left) -->
+    <g filter="url(#glow-cyan)">
+      <circle cx="173" cy="308" r="16" fill="none" stroke="url(#cyan-grad)" stroke-width="3">
+        <animate attributeName="r" values="16;18;16" dur="3s" repeatCount="indefinite" />
+        <animate attributeName="stroke-width" values="3;1.5;3" dur="3s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="173" cy="308" r="6" fill="#06b6d4" opacity="0.8">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" />
+        <animate attributeName="r" values="6;4;6" dur="1.5s" repeatCount="indefinite" />
+      </circle>
+    </g>
+
+    <!-- Skeptic orb (Amber - center) -->
+    <g filter="url(#glow-amber)">
+      <circle cx="256" cy="308" r="16" fill="none" stroke="url(#amber-grad)" stroke-width="3">
+        <animate attributeName="r" values="16;19;16" dur="3.5s" repeatCount="indefinite" />
+        <animate attributeName="stroke-width" values="3;1.5;3" dur="3.5s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="256" cy="308" r="6" fill="#f59e0b" opacity="0.8">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.75s" repeatCount="indefinite" />
+        <animate attributeName="r" values="6;4;6" dur="1.75s" repeatCount="indefinite" />
+      </circle>
+    </g>
+
+    <!-- Synthesizer orb (Green - right) -->
+    <g filter="url(#glow-green)">
+      <circle cx="339" cy="308" r="16" fill="none" stroke="url(#green-grad)" stroke-width="3">
+        <animate attributeName="r" values="16;18;16" dur="2.8s" repeatCount="indefinite" />
+        <animate attributeName="stroke-width" values="3;1.5;3" dur="2.8s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="339" cy="308" r="6" fill="#22c55e" opacity="0.8">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.4s" repeatCount="indefinite" />
+        <animate attributeName="r" values="6;4;6" dur="1.4s" repeatCount="indefinite" />
+      </circle>
+    </g>
+
+    <!-- Connection lines between orbs -->
+    <line x1="189" y1="308" x2="240" y2="308" stroke="#06b6d4" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,4">
+      <animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.8s" repeatCount="indefinite" />
+    </line>
+    <line x1="272" y1="308" x2="323" y2="308" stroke="#f59e0b" stroke-width="1.5" opacity="0.6" stroke-dasharray="4,4">
+      <animate attributeName="stroke-dashoffset" from="8" to="0" dur="0.8s" repeatCount="indefinite" />
+    </line>
+
+    <!-- === Convergence Node at Pediment Center === -->
+    <g filter="url(#glow-center)">
+      <circle cx="256" cy="172" r="14" fill="url(#center-glow)" opacity="0.9">
+        <animate attributeName="r" values="14;18;14" dur="2s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="256" cy="172" r="7" fill="#fff" opacity="0.95">
+        <animate attributeName="r" values="7;4;7" dur="2s" repeatCount="indefinite" />
+      </circle>
+    </g>
+
+    <!-- Lines from orbs up to convergence node -->
+    <line x1="173" y1="292" x2="248" y2="186" stroke="#06b6d4" stroke-width="1.5" opacity="0.5" stroke-dasharray="6,6">
+      <animate attributeName="stroke-dashoffset" from="12" to="0" dur="1s" repeatCount="indefinite" />
+    </line>
+    <line x1="256" y1="292" x2="256" y2="186" stroke="#f59e0b" stroke-width="1.5" opacity="0.5" stroke-dasharray="6,6">
+      <animate attributeName="stroke-dashoffset" from="12" to="0" dur="1s" repeatCount="indefinite" />
+    </line>
+    <line x1="339" y1="292" x2="264" y2="186" stroke="#22c55e" stroke-width="1.5" opacity="0.5" stroke-dasharray="6,6">
+      <animate attributeName="stroke-dashoffset" from="12" to="0" dur="1s" repeatCount="indefinite" />
+    </line>
+
+    <!-- Data bullets flowing up (Fast glowing packets) -->
+    <g filter="url(#glow-bullet)">
+      <line x1="173" y1="292" x2="248" y2="186" stroke="#fff" stroke-width="2.5" opacity="0.9" stroke-dasharray="8, 200">
+        <animate attributeName="stroke-dashoffset" from="150" to="-50" dur="1.5s" repeatCount="indefinite" />
+      </line>
+      <line x1="256" y1="292" x2="256" y2="186" stroke="#fff" stroke-width="2.5" opacity="0.9" stroke-dasharray="8, 200">
+        <animate attributeName="stroke-dashoffset" from="150" to="-50" dur="1.2s" repeatCount="indefinite" />
+      </line>
+      <line x1="339" y1="292" x2="264" y2="186" stroke="#fff" stroke-width="2.5" opacity="0.9" stroke-dasharray="8, 200">
+        <animate attributeName="stroke-dashoffset" from="150" to="-50" dur="1.8s" repeatCount="indefinite" />
+      </line>
+    </g>
+
   </g>
-
-  <!-- Skeptic orb (Amber - center) -->
-  <g filter="url(#glow-amber)">
-    <circle cx="256" cy="308" r="16" fill="none" stroke="url(#amber-grad)" stroke-width="3"/>
-    <circle cx="256" cy="308" r="6" fill="#f59e0b" opacity="0.8"/>
-  </g>
-
-  <!-- Synthesizer orb (Green - right) -->
-  <g filter="url(#glow-green)">
-    <circle cx="339" cy="308" r="16" fill="none" stroke="url(#green-grad)" stroke-width="3"/>
-    <circle cx="339" cy="308" r="6" fill="#22c55e" opacity="0.8"/>
-  </g>
-
-  <!-- Connection lines between orbs -->
-  <line x1="189" y1="308" x2="240" y2="308" stroke="#06b6d4" stroke-width="1.5" opacity="0.3" stroke-dasharray="4,4"/>
-  <line x1="272" y1="308" x2="323" y2="308" stroke="#f59e0b" stroke-width="1.5" opacity="0.3" stroke-dasharray="4,4"/>
-
-  <!-- === Convergence Node at Pediment Center === -->
-  <g filter="url(#glow-center)">
-    <circle cx="256" cy="172" r="14" fill="url(#center-glow)" opacity="0.9"/>
-    <circle cx="256" cy="172" r="7" fill="#fff" opacity="0.95"/>
-  </g>
-
-  <!-- Lines from orbs up to convergence node -->
-  <line x1="173" y1="292" x2="248" y2="186" stroke="#06b6d4" stroke-width="1" opacity="0.15"/>
-  <line x1="256" y1="292" x2="256" y2="186" stroke="#f59e0b" stroke-width="1" opacity="0.15"/>
-  <line x1="339" y1="292" x2="264" y2="186" stroke="#22c55e" stroke-width="1" opacity="0.15"/>
-
-  <!-- Corner accents -->
-  <path d="M40,52 L40,40 L52,40" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.25"/>
-  <path d="M472,52 L472,40 L460,40" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.25"/>
-  <path d="M40,460 L40,472 L52,472" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.25"/>
-  <path d="M472,460 L472,472 L460,472" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.25"/>
 </svg>
