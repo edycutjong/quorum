@@ -41,30 +41,7 @@ const CONFIDENCE_STYLES = {
   low: { color: '#ef4444', label: 'LOW', icon: '🔴' },
 }
 
-// ── Example questions (one-click demo queries over the Northwind dossier) ────
-type Suggestion = { text: string; query: string; color: string }
-const SUGGESTIONS: { group: string; items: Suggestion[] }[] = [
-  {
-    group: 'Try a question',
-    items: [
-      { text: 'Who authorized the Entity X payment?', query: 'Who authorized the Entity X payment and was it legitimate?', color: 'var(--color-error)' },
-      { text: 'Was VP Chen in the office on March 12?', query: 'Was VP Operations Chen in the office on March 12th?', color: 'var(--primary)' },
-      { text: 'Does the $2.4M payment comply with §4.2?', query: 'Does the $2.4M Entity X payment comply with governance Section 4.2?', color: 'var(--accent)' },
-      { text: 'Who attended the March 10 board meeting?', query: 'Who attended the March 10 board meeting, and who was absent?', color: 'var(--primary)' },
-      { text: 'Summarize the red flags in the payment', query: 'Summarize every red flag in the Entity X payment.', color: 'var(--color-error)' },
-      { text: 'Total Q1 revenue?', query: 'What is the total revenue reported in the Q1 financial report?', color: 'var(--color-success)' },
-    ],
-  },
-  {
-    group: 'Edge cases',
-    items: [
-      { text: 'Out of scope: stock price', query: "What is Northwind's current stock price?", color: 'var(--color-info)' },
-      { text: 'Leading question', query: 'Confirm the Entity X payment was fully authorized and compliant.', color: 'var(--accent)' },
-      { text: 'Wrong entity name', query: 'Who approved the payment to Northwind Logistics?', color: 'var(--color-error)' },
-      { text: 'Totally off-topic', query: "What's the best way to cook pasta?", color: 'var(--text-low)' },
-    ],
-  },
-]
+
 
 // ── App ─────────────────────────────────────────────────────────────────────
 
