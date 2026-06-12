@@ -49,7 +49,7 @@ describe("council.ts — multi-agent debate", () => {
     it("orders turns Researcher → Skeptic → Synthesizer", async () => {
       mockCouncilCompletions("R", "S", "Synth");
       const result = await runQuorumCouncil("q");
-      expect(result.turns.map((t) => t.role)).toEqual(["researcher", "skeptic", "synthesizer"]);
+      expect(result.turns.map((t) => t.agent)).toEqual(["researcher", "skeptic", "synthesizer"]);
     });
 
     it("captures each agent's text on its turn", async () => {

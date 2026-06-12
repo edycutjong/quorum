@@ -1,5 +1,5 @@
 import { loadLLMModel, runCompletion, LLAMA_MODEL_ID } from "./qvac.js";
-import { searchMedicalKnowledge } from "./rag.js"; // Reuse ragSearch helper
+import { searchCorporateDossier } from "./rag.js"; // Reuse ragSearch helper
 
 export interface CitationRef {
   source: string;
@@ -7,7 +7,7 @@ export interface CitationRef {
 }
 
 export interface AgentTurn {
-  role: "researcher" | "skeptic" | "synthesizer";
+  agent: "researcher" | "skeptic" | "synthesizer";
   content: string;
   citations: CitationRef[];
 }
@@ -114,7 +114,7 @@ export async function runQuorumCouncil(
   const allCitations: string[] = [];
 
   // Phase 1: Researcher Turn (broad retrieval and initial hypothesis)
-  const researchDocs = await searchMedicalKnowledge(cleanQuery, 3);
+  const researchDocs = await searchCorporateDossier(cleanQuery, 3);
   researchDocs.forEach(d => allCitations.push(d.source));
 
   const researcherContext = researchDocs.map((d, i) => `[Doc ${i + 1}]: ${truncate(d.content, RAG_DOC_LIMIT)}`).join("\n");
@@ -123,16 +123,24 @@ Query: "${cleanQuery}"
 ${researcherContext}
 Cite documents as [Doc X]. Do not speculate.`;
 
-  const researcherResponse = await runCompletion({
-    modelId,
-    history: [{ role: "user", content: researcherPrompt }],
-    stream: false,
-    label: "researcher"
-  });
+  let researcherResponseText = "";
+  try {
+    const researcherResponse = await runCompletion({
+      modelId,
+      history: [{ role: "user", content: researcherPrompt }],
+      stream: false,
+      label: "researcher"
+    });
+    researcherResponseText = researcherResponse.text;
+  } catch (err) {
+    /* v8 ignore next 3 */
+    console.error("[Council] Researcher API failed:", err);
+    throw err;
+  }
 
   const researcherTurn: AgentTurn = {
-    role: "researcher",
-    content: researcherResponse.text,
+    agent: "researcher",
+    content: researcherResponseText,
     citations: researchDocs.map(d => ({ source: d.source, content: truncate(d.content, 200) }))
   };
   turns.push(researcherTurn);
@@ -142,7 +150,7 @@ Cite documents as [Doc X]. Do not speculate.`;
   // Widen retrieval and target the records that most often contradict a claim
   // (availability/leave/attendance, approvals, exceptions) so cross-document
   // conflicts — e.g. an authorizer who was actually on leave — surface.
-  const skepticDocs = await searchMedicalKnowledge(
+  const skepticDocs = await searchCorporateDossier(
     `contradictions, exceptions, warnings, availability, leave, attendance, approval and authorization records: ${cleanQuery}`,
     4
   );
@@ -150,20 +158,28 @@ Cite documents as [Doc X]. Do not speculate.`;
 
   const skepticContext = skepticDocs.map((d, i) => `[Doc ${i + 1}]: ${truncate(d.content, RAG_DOC_LIMIT)}`).join("\n");
   const skepticPrompt = `You are the Skeptic Agent. Challenge this answer using the documents below. Be concise.
-Researcher said: "${truncate(researcherResponse.text, AGENT_OUTPUT_LIMIT)}"
+Researcher said: "${truncate(researcherResponseText, AGENT_OUTPUT_LIMIT)}"
 ${skepticContext}
 Find contradictions, gaps, or errors. What did the Researcher miss?`;
 
-  const skepticResponse = await runCompletion({
-    modelId,
-    history: [{ role: "user", content: skepticPrompt }],
-    stream: false,
-    label: "skeptic"
-  });
+  let skepticResponseText = "";
+  try {
+    const skepticResponse = await runCompletion({
+      modelId,
+      history: [{ role: "user", content: skepticPrompt }],
+      stream: false,
+      label: "skeptic"
+    });
+    skepticResponseText = skepticResponse.text;
+  } catch (err) {
+    /* v8 ignore next 3 */
+    console.error("[Council] Skeptic API failed:", err);
+    throw err;
+  }
 
   const skepticTurn: AgentTurn = {
-    role: "skeptic",
-    content: skepticResponse.text,
+    agent: "skeptic",
+    content: skepticResponseText,
     citations: skepticDocs.map(d => ({ source: d.source, content: truncate(d.content, 200) }))
   };
   turns.push(skepticTurn);
@@ -172,20 +188,28 @@ Find contradictions, gaps, or errors. What did the Researcher miss?`;
   // Phase 3: Synthesizer Turn (arbitration and final consensus)
   const synthesizerPrompt = `You are the Synthesizer. Reconcile these two positions into a final verdict. Be concise.
 Query: "${cleanQuery}"
-RESEARCHER: "${truncate(researcherResponse.text, AGENT_OUTPUT_LIMIT)}"
-SKEPTIC: "${truncate(skepticResponse.text, AGENT_OUTPUT_LIMIT)}"
+RESEARCHER: "${truncate(researcherResponseText, AGENT_OUTPUT_LIMIT)}"
+SKEPTIC: "${truncate(skepticResponseText, AGENT_OUTPUT_LIMIT)}"
 State confidence: high (agree), medium (some objections), or low (irreconcilable).`;
 
-  const synthesizerResponse = await runCompletion({
-    modelId,
-    history: [{ role: "user", content: synthesizerPrompt }],
-    stream: false,
-    label: "synthesizer"
-  });
+  let synthesizerResponseText = "";
+  try {
+    const synthesizerResponse = await runCompletion({
+      modelId,
+      history: [{ role: "user", content: synthesizerPrompt }],
+      stream: false,
+      label: "synthesizer"
+    });
+    synthesizerResponseText = synthesizerResponse.text;
+  } catch (err) {
+    /* v8 ignore next 3 */
+    console.error("[Council] Synthesizer API failed:", err);
+    throw err;
+  }
 
   const synthesizerTurn: AgentTurn = {
-    role: "synthesizer",
-    content: synthesizerResponse.text,
+    agent: "synthesizer",
+    content: synthesizerResponseText,
     citations: []
   };
   turns.push(synthesizerTurn);
@@ -195,11 +219,11 @@ State confidence: high (agree), medium (some objections), or low (irreconcilable
   // Model will be cleaned up when the server shuts down
 
   // Determine consensus-based confidence (high / medium / low)
-  const confidence = deriveConfidence(skepticResponse.text, synthesizerResponse.text);
+  const confidence = deriveConfidence(skepticResponseText, synthesizerResponseText);
 
   return {
     turns,
-    verdict: synthesizerResponse.text,
+    verdict: synthesizerResponseText,
     confidence,
     citations: Array.from(new Set(allCitations))
   };

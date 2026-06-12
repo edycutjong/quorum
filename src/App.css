@@ -811,3 +811,6 @@ body::after {
     padding: 18px;
   }
 }
+
+.typing-text { border-right: 2px solid #0f0; animation: blink 1s step-end infinite; overflow: hidden; white-space: nowrap; }
+@keyframes blink { 50% { border-color: transparent; } }

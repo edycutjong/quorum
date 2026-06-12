@@ -3,20 +3,20 @@ import cors from "cors";
 import { runQuorumCouncil } from "./src/core/council.js";
 import { ingestCorpus, resetCorpus } from "./src/core/rag.js";
 import { audit, setAuditWriter } from "./src/core/audit.js";
-import { readFileSync, readdirSync, appendFileSync, writeFileSync, mkdirSync } from "fs";
-import { join, dirname } from "path";
+import { readFileSync, readdirSync } from "fs";
+import { join } from "path";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ── Structured audit log (model loads/unloads + inference perf) ───────────────
 // Enabled by default; disable with QUORUM_AUDIT=0. Truncated per server session.
-const AUDIT_LOG = process.env.QUORUM_AUDIT_LOG || "docs/audit-log.jsonl";
+
 if (process.env.QUORUM_AUDIT !== "0") {
-  mkdirSync(dirname(AUDIT_LOG), { recursive: true });
-  writeFileSync(AUDIT_LOG, "");
-  setAuditWriter((rec) => appendFileSync(AUDIT_LOG, JSON.stringify(rec) + "\n"));
-  console.log(`[audit] structured log → ${AUDIT_LOG}`);
+  // Use in-memory array instead to prevent read-only filesystem crash on cloud deployments.
+  const memoryAuditLog: any[] = [];
+  setAuditWriter((rec) => memoryAuditLog.push(rec));
+  console.log(`[audit] structured log → in-memory array`);
 }
 
 app.use(cors({ origin: ["http://localhost:5173", "http://localhost:4173"] }));
@@ -50,10 +50,10 @@ app.post("/api/council", async (req, res) => {
       elapsed_ms: elapsed,
       // Map council result to frontend format
       turns: result.turns.map((t) => ({
-        agent: t.role,
+        agent: t.agent,
         content: t.content,
         citations: t.citations.map((c, i) => ({
-          id: `${t.role}-${i}`,
+          id: `${t.agent}-${i}`,
           content: c.content,
           source: c.source,
         })),
@@ -106,10 +106,10 @@ app.post("/api/council/stream", async (req, res) => {
     const result = await runQuorumCouncil(query, (turn) => {
       // Stream each turn to the client as it completes
       sendEvent("turn", {
-        agent: turn.role,
+        agent: turn.agent,
         content: turn.content,
         citations: turn.citations.map((c, i) => ({
-          id: `${turn.role}-${i}`,
+          id: `${turn.agent}-${i}`,
           content: c.content,
           source: c.source,
         })),
@@ -166,10 +166,10 @@ app.post("/api/seed", async (_req, res) => {
 
 // ── Contradiction Detection ─────────────────────────────────────────────────
 function detectContradictions(result: {
-  turns: { role: string; content: string }[];
+  turns: { agent: string; content: string }[];
 }): string[] {
   const contradictions: string[] = [];
-  const skepticTurn = result.turns.find((t) => t.role === "skeptic");
+  const skepticTurn = result.turns.find((t) => t.agent === "skeptic");
   if (!skepticTurn) return contradictions;
 
   const lower = skepticTurn.content.toLowerCase();

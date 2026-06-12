@@ -158,7 +158,7 @@ function App() {
           buffer += decoder.decode(value, { stream: true })
 
           // Parse SSE events from buffer
-          const lines = buffer.split('\\n')
+          const lines = buffer.split('\n')
           buffer = lines.pop() || '' // Keep incomplete line in buffer
 
           let eventType = ''
@@ -240,68 +240,48 @@ function App() {
         </div>
       </header>
 
-      {/* Query Input */}
-      <div className="query-section">
-        <textarea
-          className="query-input"
-          placeholder="Ask a question about the Northwind dossier... e.g. 'Who authorized the Entity X payment?'"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() }}}
-          rows={2}
-        />
-        <div className="query-actions">
-          <div className="suggest-popover-wrap" ref={suggestRef}>
-            <button
-              type="button"
-              className="history-toggle-btn suggest-trigger"
-              onClick={() => setShowSuggestions((v) => !v)}
-              aria-expanded={showSuggestions}
-              aria-haspopup="menu"
-            >
-              💡 Try
-              <span className={`suggestions-chevron ${showSuggestions ? 'open' : ''}`}>▾</span>
-            </button>
-            {showSuggestions && (
-              <div className="suggest-popover" role="menu" aria-label="Example questions">
-                {SUGGESTIONS.map((g) => (
-                  <div key={g.group} className="suggest-group">
-                    <div className="suggest-group-label">{g.group}</div>
-                    {g.items.map((s) => (
-                      <button
-                        key={s.text}
-                        type="button"
-                        role="menuitem"
-                        className="suggest-item"
-                        onClick={() => { setShowSuggestions(false); handleSubmit(s.query) }}
-                        disabled={isDebating}
-                        title={s.query}
-                      >
-                        <span className="suggest-dot" style={{ background: s.color, color: s.color }} />
-                        {s.text}
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <button
-            className="submit-btn"
-            onClick={() => handleSubmit()}
-            disabled={!query.trim() || isDebating}
+      {/* Query Buttons */}
+      <div className="query-section" style={{ padding: '2rem 0' }}>
+        <h3 style={{ textAlign: "center", marginBottom: "1.5rem", color: 'var(--text-main)' }}>Select an Audit Target</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', width: '100%' }}>
+          <button 
+            style={{ padding: '1.5rem', fontSize: '1.1rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+            onClick={() => handleSubmit("Audit Q1 Financials vs HR Logs for the Entity X payment")} disabled={isDebating}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            {isDebating ? '⏳ Council is debating...' : '🏛️ Convene Council'}
+            <span style={{ fontSize: '2.5rem' }}>📊</span>
+            <strong>Audit Q1 Financials vs HR Logs</strong>
           </button>
-          {history.length > 0 && (
+          <button 
+            style={{ padding: '1.5rem', fontSize: '1.1rem', borderRadius: '12px', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', color: 'var(--text-main)', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+            onClick={() => handleSubmit("Cross-reference VP Chen's attendance on March 12th")} disabled={isDebating}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <span style={{ fontSize: '2.5rem' }}>📅</span>
+            <strong>Cross-Reference VP Chen Attendance</strong>
+          </button>
+          <button 
+            style={{ padding: '1.5rem', fontSize: '1.1rem', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--color-error)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', color: 'var(--color-error)', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+            onClick={() => handleSubmit("Summarize every compliance red flag in the Entity X payment")} disabled={isDebating}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <span style={{ fontSize: '2.5rem' }}>🚨</span>
+            <strong>Extract Compliance Red Flags</strong>
+          </button>
+        </div>
+        {history.length > 0 && (
+          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
             <button
               className="history-toggle-btn"
               onClick={() => setShowHistory(!showHistory)}
             >
               📜 History ({history.length})
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* History Panel */}
@@ -336,17 +316,35 @@ function App() {
         </div>
       )}
       {isDebating && (
-        <div className="debating">
-          <div className="debating-spinner" />
-          {currentAgent ? (
-            <p>
-              {currentAgent === 'researcher' && '🔍 Researcher is retrieving documents...'}
-              {currentAgent === 'skeptic' && '⚡ Skeptic is challenging the findings...'}
-              {currentAgent === 'synthesizer' && '🧩 Synthesizer is reconciling positions...'}
-            </p>
-          ) : (
-            <p>Finalizing council verdict...</p>
-          )}
+        <div className="debating-terminal" style={{ background: '#0a0a0a', padding: '1.5rem', borderRadius: '12px', fontFamily: '"JetBrains Mono", monospace', color: '#06b6d4', border: '1px solid #1e293b', marginTop: '2rem', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)' }}>
+          <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #1e293b', paddingBottom: '0.75rem' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#06b6d4', animation: 'pulse 1.5s infinite', display: 'inline-block' }} />
+            <span style={{ letterSpacing: '2px', fontSize: '0.9rem', fontWeight: 600 }}>COUNCIL DEBATE IN PROGRESS</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.95rem' }}>
+            {currentAgent === 'researcher' && <div className="typing-text">&gt; [Researcher Node]: Cross-referencing access logs...</div>}
+            {currentAgent === 'skeptic' && (
+              <>
+                <div style={{ color: '#475569' }}>&gt; [Researcher Node]: Initial retrieval complete. 4 documents found.</div>
+                <div className="typing-text" style={{ color: '#f59e0b' }}>&gt; [Skeptic Node]: Challenging findings... Conflict found in Q1 report...</div>
+              </>
+            )}
+            {currentAgent === 'synthesizer' && (
+              <>
+                <div style={{ color: '#475569' }}>&gt; [Researcher Node]: Initial retrieval complete. 4 documents found.</div>
+                <div style={{ color: '#475569' }}>&gt; [Skeptic Node]: Challenging findings... Conflict found in Q1 report...</div>
+                <div className="typing-text" style={{ color: '#22c55e' }}>&gt; [QVAC Module]: Reconciling positions... 2/3 Consensus Reached.</div>
+              </>
+            )}
+            {!currentAgent && (
+              <>
+                <div style={{ color: '#475569' }}>&gt; [Researcher Node]: Initial retrieval complete. 4 documents found.</div>
+                <div style={{ color: '#475569' }}>&gt; [Skeptic Node]: Challenging findings... Conflict found in Q1 report...</div>
+                <div style={{ color: '#475569' }}>&gt; [QVAC Module]: Reconciling positions... 2/3 Consensus Reached.</div>
+                <div className="typing-text">&gt; Finalizing verdict...</div>
+              </>
+            )}
+          </div>
         </div>
       )}
 

@@ -27,7 +27,7 @@ import {
   releaseEmbeddingModel,
   ingestCorpus,
   searchCorpus,
-  searchMedicalKnowledge,
+  searchCorporateDossier,
   resetCorpus,
   chunkText,
   prepareDocumentChunks,
@@ -317,9 +317,9 @@ describe("rag.ts — corpus pipeline", () => {
     });
   });
 
-  describe("searchMedicalKnowledge alias", () => {
+  describe("searchCorporateDossier alias", () => {
     it("is the same function as searchCorpus (backward-compat alias)", () => {
-      expect(searchMedicalKnowledge).toBe(searchCorpus);
+      expect(searchCorporateDossier).toBe(searchCorpus);
     });
   });
 

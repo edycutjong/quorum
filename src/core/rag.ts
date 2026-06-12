@@ -194,4 +194,4 @@ export async function searchCorpus(
 }
 
 // Re-export with legacy alias for backward compatibility (council.ts uses this name)
-export { searchCorpus as searchMedicalKnowledge };
+export { searchCorpus as searchCorporateDossier };

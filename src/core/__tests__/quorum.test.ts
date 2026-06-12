@@ -159,11 +159,11 @@ describe("Quorum Core Module", () => {
       const result = await runQuorumCouncil("Was Entity X paid?");
       
       expect(result.turns).toHaveLength(3);
-      expect(result.turns[0].role).toBe("researcher");
+      expect(result.turns[0].agent).toBe("researcher");
       expect(result.turns[0].content).toBe("Researcher: It is approved. " + "A".repeat(600));
-      expect(result.turns[1].role).toBe("skeptic");
+      expect(result.turns[1].agent).toBe("skeptic");
       expect(result.turns[1].content).toBe("Skeptic: Looks fine, no objections.");
-      expect(result.turns[2].role).toBe("synthesizer");
+      expect(result.turns[2].agent).toBe("synthesizer");
       expect(result.turns[2].content).toBe("Synthesizer: Consensus is positive.");
       
       expect(result.verdict).toBe("Synthesizer: Consensus is positive.");

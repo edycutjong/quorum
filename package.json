@@ -1,7 +1,7 @@
 {
   "name": "quorum",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "Offline multi-agent document council — 3 AI agents debate your documents to a cited answer",
   "license": "MIT",
