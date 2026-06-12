@@ -132,11 +132,12 @@ Cite documents as [Doc X]. Do not speculate.`;
       label: "researcher"
     });
     researcherResponseText = researcherResponse.text;
+  /* v8 ignore start */
   } catch (err) {
-    /* v8 ignore next 3 */
     console.error("[Council] Researcher API failed:", err);
     throw err;
   }
+  /* v8 ignore stop */
 
   const researcherTurn: AgentTurn = {
     agent: "researcher",
@@ -171,11 +172,12 @@ Find contradictions, gaps, or errors. What did the Researcher miss?`;
       label: "skeptic"
     });
     skepticResponseText = skepticResponse.text;
+  /* v8 ignore start */
   } catch (err) {
-    /* v8 ignore next 3 */
     console.error("[Council] Skeptic API failed:", err);
     throw err;
   }
+  /* v8 ignore stop */
 
   const skepticTurn: AgentTurn = {
     agent: "skeptic",
@@ -201,11 +203,12 @@ State confidence: high (agree), medium (some objections), or low (irreconcilable
       label: "synthesizer"
     });
     synthesizerResponseText = synthesizerResponse.text;
+  /* v8 ignore start */
   } catch (err) {
-    /* v8 ignore next 3 */
     console.error("[Council] Synthesizer API failed:", err);
     throw err;
   }
+  /* v8 ignore stop */
 
   const synthesizerTurn: AgentTurn = {
     agent: "synthesizer",
